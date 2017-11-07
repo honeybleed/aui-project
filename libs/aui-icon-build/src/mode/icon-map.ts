@@ -17,6 +17,9 @@ export class IconMap {
 export const commonIcons: IconMap = {
   family: 'common-icon',
   map: [
-    {name: 'window-close', code: '\ue93b'}
+    {name: 'window-close', code: '\ue93b'},
+    {name: 'eye', code: '\ue722'},
+    {name: 'check', code: '\ue69c'},
+    {name: 'alert-circle-outline', code: '\ue614'}
   ]
 };

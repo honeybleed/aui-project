@@ -15,7 +15,10 @@ var IconMap = (function () {
 var commonIcons = {
     family: 'common-icon',
     map: [
-        { name: 'window-close', code: '\ue93b' }
+        { name: 'window-close', code: '\ue93b' },
+        { name: 'eye', code: '\ue722' },
+        { name: 'check', code: '\ue69c' },
+        { name: 'alert-circle-outline', code: '\ue614' }
     ]
 };
 
@@ -63,11 +66,9 @@ var IconManageService = (function () {
      */
     IconManageService.prototype.getIconMaps = function () {
         var /** @type {?} */ maps = new Map();
-        for (var /** @type {?} */ family in this._icon_map_cache) {
-            if (family) {
-                maps.set(family, this._icon_map_cache.get(family));
-            }
-        }
+        this._icon_map_cache.forEach(function (value, key) {
+            maps.set(key, value);
+        });
         return maps;
     };
     /**

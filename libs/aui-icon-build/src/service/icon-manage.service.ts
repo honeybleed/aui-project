@@ -34,11 +34,9 @@ export class IconManageService {
 
   public getIconMaps(): Map<string, IconMap> {
     const maps: Map<string, IconMap> = new Map();
-    for (const family in this._icon_map_cache) {
-      if (family) {
-        maps.set(family, this._icon_map_cache.get(family));
-      }
-    }
+    this._icon_map_cache.forEach((value: IconMap, key: string) => {
+      maps.set(key, value);
+    });
     return maps;
   }
 

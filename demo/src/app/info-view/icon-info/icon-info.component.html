@@ -1,0 +1,25 @@
+<div class="info-main-layer">
+  <aui-lib-info-title [title]="'@aui/icon'"></aui-lib-info-title>
+  <aui-lib-info-desc [desc]="desc"></aui-lib-info-desc>
+  <div class="example">
+    <div class="family-group" *ngFor="let map of getIconFamilies()">
+      <div class="family-title">
+        <span class="title">font-family</span>
+        <span class="value">{{map.family}}</span>
+      </div>
+      <div class="family-icons">
+        <span class="icon-item" *ngFor="let icon of map.map">
+          <span class="icon">
+            <aui-icon [family]="map.family" [icon]="icon.name"></aui-icon>
+          </span>
+          <span class="icon-code">
+            {{icon.name}}
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="usage">
+    <aui-lib-info-usage [markdown]="'icon'"></aui-lib-info-usage>
+  </div>
+</div>

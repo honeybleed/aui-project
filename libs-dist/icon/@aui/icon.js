@@ -9,7 +9,10 @@ class IconMap {
 const commonIcons = {
     family: 'common-icon',
     map: [
-        { name: 'window-close', code: '\ue93b' }
+        { name: 'window-close', code: '\ue93b' },
+        { name: 'eye', code: '\ue722' },
+        { name: 'check', code: '\ue69c' },
+        { name: 'alert-circle-outline', code: '\ue614' }
     ]
 };
 
@@ -53,11 +56,9 @@ class IconManageService {
      */
     getIconMaps() {
         const /** @type {?} */ maps = new Map();
-        for (const /** @type {?} */ family in this._icon_map_cache) {
-            if (family) {
-                maps.set(family, this._icon_map_cache.get(family));
-            }
-        }
+        this._icon_map_cache.forEach((value, key) => {
+            maps.set(key, value);
+        });
         return maps;
     }
     /**
