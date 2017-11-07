@@ -3,15 +3,12 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 
-import { AuiIconModule } from '@aui/icon';
-
 @NgModule({
   declarations: [
     AppComponent
   ],
   imports: [
-    BrowserModule,
-    AuiIconModule.forRoot([])
+    BrowserModule
   ],
   providers: [],
   bootstrap: [AppComponent]
