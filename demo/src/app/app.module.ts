@@ -11,6 +11,7 @@ import { IconInfoComponent } from './info-view/icon-info/icon-info.component';
 import { LibInfoDescComponent } from './lib-info/lib-info-desc/lib-info-desc.component';
 import { MarkdownModule } from 'angular2-markdown';
 import { LibInfoUsageComponent } from './lib-info/lib-info-usage/lib-info-usage.component';
+import { NestTestComponent } from './test/nest/nest-test.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { LibInfoUsageComponent } from './lib-info/lib-info-usage/lib-info-usage.
     LibInfoDescComponent,
     LibInfoUsageComponent,
     IconInfoComponent,
+    NestTestComponent
   ],
   imports: [
     BrowserModule,

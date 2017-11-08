@@ -8,11 +8,11 @@
         <span class="value">{{map.family}}</span>
       </div>
       <div class="family-icons">
-        <span class="icon-item" *ngFor="let icon of map.map">
-          <span class="icon">
+        <span class="icon-item" *ngFor="let icon of map.map" (mousemove)="showPosition($event)" >
+          <span class="icon" (mousemove)="$event.stopPropagation()" [style.pointer-events]="'none'">
             <aui-icon [family]="map.family" [icon]="icon.name"></aui-icon>
           </span>
-          <span class="icon-code">
+          <span class="icon-code" (mousemove)="$event.stopPropagation()" [style.pointer-events]="'none'">
             {{icon.name}}
           </span>
         </span>
