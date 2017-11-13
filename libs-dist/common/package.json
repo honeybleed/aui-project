@@ -1,0 +1,31 @@
+{
+  "name": "@aui/common",
+  "version": "0.0.1",
+  "description": "Angular library built with ❤ using ngx-library yeoman generator.",
+  "keywords": [
+    "ng",
+    "angular",
+    "library"
+  ],
+  "author": {
+    "name": "Aaron",
+    "url": "http://github.com/honeybleed"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/honeybleed/aui-common-build.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "http://github.com/honeybleed/aui-common-build/issues"
+  },
+  "homepage": "http://github.com/honeybleed/aui-common-build",
+  "main": "bundles/common.umd.js",
+  "module": "@aui/common.es5.js",
+  "es2015": "@aui/common.js",
+  "typings": "common.d.ts",
+  "peerDependencies": {
+    "@angular/core": "^4.0.0",
+    "@angular/common": "^4.0.0"
+  }
+}

@@ -1,5 +1,5 @@
 import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
-import { IconManageService, IconMap, IconComponent } from '@aui/icon';
+import { IconManageService, IconMap } from '@aui/common';
 
 @Component({
   encapsulation: ViewEncapsulation.None,
@@ -8,7 +8,6 @@ import { IconManageService, IconMap, IconComponent } from '@aui/icon';
   styleUrls: ['./icon-info.component.scss']
 })
 export class IconInfoComponent {
-  @ViewChild(IconComponent) icon;
   desc: string;
   iconMap: Map<string, IconMap>;
   constructor(private _iconManageService: IconManageService) {

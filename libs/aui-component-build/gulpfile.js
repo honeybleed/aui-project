@@ -70,15 +70,15 @@ const argv = yargs
   .argv;
 
 const config = {
-  libraryName: '@aui/common',
-  unscopedLibraryName: 'common',
+  libraryName: '@aui/component',
+  unscopedLibraryName: 'component',
   allSrc: 'src/**/*',
   allTs: 'src/**/!(*.spec).ts',
   allSass: 'src/**/*.+(scss|sass)',
   allHtml: 'src/**/*.html',
   demoDir: 'demo/',
   buildDir: 'tmp/',
-  outputDir: '../../libs-dist/common/',
+  outputDir: '../../libs-dist/component/',
   coverageDir: 'coverage/'
 };
 
@@ -358,7 +358,7 @@ gulp.task('rollup-bundle', (cb) => {
       // ATTENTION:
       // Add any other dependency or peer dependency of your library here
       // This is required for UMD bundle users.
-
+      '@aui/common': '@aui/common'
     };
     const rollupBaseConfig = {
       name: _.camelCase(config.libraryName),
@@ -371,7 +371,10 @@ gulp.task('rollup-bundle', (cb) => {
         }),
         rollupSourcemaps(),
         rollupNodeResolve({ jsnext: true, module: true })
-      ]
+      ],
+      onwarn (warning) {
+        return;
+      }
     };
 
     // UMD bundle.
@@ -386,7 +389,7 @@ gulp.task('rollup-bundle', (cb) => {
       input: es5Input,
       file: path.join(distFolder, `bundles`, `${config.unscopedLibraryName}.umd.min.js`),
       format: 'umd',
-      plugins: rollupBaseConfig.plugins.concat([rollupUglify({})]),
+      plugins: rollupBaseConfig.plugins.concat([rollupUglify({})])
     });
 
     // ESM+ES5 flat module bundle.

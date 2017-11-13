@@ -1,0 +1,8 @@
+<div class="aui-text-input-outlet" [ngClass]="dumpStatus()">
+  <div class="input-block">
+    <span auiIcon [iconObj]="icon" *ngIf="hasIcon()" class="icon"></span>
+    <span class="label" *ngIf="hasLabel()">{{label}}</span>
+    <input [type]="type" [value]="value" [disabled]="isDisabled" [placeholder]="placeholder"/>
+    <span class="tail" auiIcon [iconObj]="tail" *ngIf="hasTail()"></span>
+  </div>
+</div>

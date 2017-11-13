@@ -1,4 +1,3 @@
-// export * from './your/main.module';
 export * from './aui-common.module';
 export * from './service/icon-manage.service';
 export * from './mode/icon-map';

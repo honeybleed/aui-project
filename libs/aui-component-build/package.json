@@ -1,16 +1,16 @@
 {
-  "name": "@aui/common",
+  "name": "@aui/component",
   "description": "Angular library built with ❤ using ngx-library yeoman generator.",
   "version": "0.0.1",
-  "filename": "./src/@aui/common.js",
-  "homepage": "http://github.com/honeybleed/aui-common-build",
+  "filename": "./src/@aui/component.js",
+  "homepage": "http://github.com/honeybleed/aui-component-build",
   "author": {
     "name": "Aaron",
     "url": "http://github.com/honeybleed"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/honeybleed/aui-common-build.git"
+    "url": "git://github.com/honeybleed/aui-component-build.git"
   },
   "license": "MIT",
   "keywords": [
@@ -19,7 +19,7 @@
     "library"
   ],
   "bugs": {
-    "url": "http://github.com/honeybleed/aui-common-build/issues"
+    "url": "http://github.com/honeybleed/aui-component-build/issues"
   },
   "private": true,
   "main": "./dist",
@@ -28,8 +28,8 @@
     "start": "gulp build",
     "test": " gulp test",
     "demo": " gulp build:demo",
-    "dev-watch:common": " gulp build:watch-fast ",
-    "check-travis": " travis-status --repo=honeybleed/aui-common-build --branch=master --fail-pending || echo 'Not yet passing'"
+    "dev-watch:component": " gulp build:watch-fast ",
+    "check-travis": " travis-status --repo=honeybleed/aui-component-build --branch=master --fail-pending || echo 'Not yet passing'"
   },
   "dependencies": {
     "@angular/core": "4.0.0",
