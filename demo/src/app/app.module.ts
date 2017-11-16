@@ -17,6 +17,7 @@ import { TextInputInfoComponent } from './info-view/text-input-info/text-input-i
 import { TestModule } from './test/test.module';
 import { TestCoreModule } from './test/coreModule/test-core.module';
 import { TestShareModule } from './test/shareModule/test-share.module';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [

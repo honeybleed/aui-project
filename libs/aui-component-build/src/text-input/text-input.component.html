@@ -1,8 +1,24 @@
-<div class="aui-text-input-outlet" [ngClass]="dumpStatus()">
+<div class="aui-text-input-outlet" [ngClass]="dumpStatus()" (mouseenter)="mouseEnter()" (mouseleave)="mouseLeave()">
   <div class="input-block">
-    <span auiIcon [iconObj]="icon" *ngIf="hasIcon()" class="icon"></span>
-    <span class="label" *ngIf="hasLabel()">{{label}}</span>
-    <input [type]="type" [value]="value" [disabled]="isDisabled" [placeholder]="placeholder"/>
-    <span class="tail" auiIcon [iconObj]="tail" *ngIf="hasTail()"></span>
+    <span auiIcon
+          (click)="iconClick()"
+          [iconObj]="icon"
+          *ngIf="hasIcon()"
+          class="icon"></span>
+    <span class="label"
+          *ngIf="hasLabel()"
+          (click)="labelClick() ">{{label}}</span>
+    <input [type]="type"
+           [value]="value"
+           [disabled]="isDisabled"
+           [placeholder]="placeholder"
+           (change)="onChange($event)"
+           (input)="onInput($event)"
+           (focus)="inputFocus()"
+           (blur)="inputBlur()" #input/>
+    <span class="tail"
+          auiIcon [iconObj]="tail"
+          *ngIf="hasTail()"
+          (click)="tailClick()"></span>
   </div>
 </div>

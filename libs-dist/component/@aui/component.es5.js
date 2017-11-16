@@ -1,6 +1,6 @@
-import { Component, Directive, ElementRef, Input, NgModule, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Directive, ElementRef, EventEmitter, Input, NgModule, Output, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ComponentWithStatus, IconManageService } from '@aui/common';
+import { IconManageService } from '@aui/common';
 
 var IconObj = (function () {
     function IconObj() {
@@ -56,6 +56,62 @@ IconDirective.propDecorators = {
     'iconObj': [{ type: Input },],
 };
 
+var ComponentWithStatus = (function () {
+    /**
+     * @param {?} s
+     */
+    function ComponentWithStatus(s) {
+        this.isDisabled = false;
+        this.status = {};
+        for (var _i = 0, s_1 = s; _i < s_1.length; _i++) {
+            var i = s_1[_i];
+            this.status[i] = false;
+        }
+    }
+    /**
+     * @param {?} keys
+     * @return {?}
+     */
+    ComponentWithStatus.prototype.setStatus = function (keys) {
+        for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
+            var i = keys_1[_i];
+            if (this.status.hasOwnProperty(i)) {
+                this.status[i] = true;
+            }
+        }
+    };
+    /**
+     * @param {?} keys
+     * @return {?}
+     */
+    ComponentWithStatus.prototype.unsetStatus = function (keys) {
+        for (var _i = 0, keys_2 = keys; _i < keys_2.length; _i++) {
+            var i = keys_2[_i];
+            if (this.status.hasOwnProperty(i)) {
+                this.status[i] = false;
+            }
+        }
+    };
+    /**
+     * @return {?}
+     */
+    ComponentWithStatus.prototype.dumpStatus = function () {
+        var /** @type {?} */ ret = [];
+        if (this.isDisabled) {
+            ret.push('disable');
+            return ret.join(' ');
+        }
+        for (var _i = 0, _a = Object.getOwnPropertyNames(this.status); _i < _a.length; _i++) {
+            var s = _a[_i];
+            if (this.status.hasOwnProperty(s) && this.status[s]) {
+                ret.push(s);
+            }
+        }
+        return ret.join(' ');
+    };
+    return ComponentWithStatus;
+}());
+
 var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -68,17 +124,17 @@ var __extends = (undefined && undefined.__extends) || (function () {
 })();
 var TextInputComponent = (function (_super) {
     __extends(TextInputComponent, _super);
-    function TextInputComponent() {
-        var _this = _super.call(this, ['hover', 'focus', 'valid-success', 'valid-error']) || this;
-        if (!_this.type) {
-            _this.type = 'text';
-        }
-        if (!_this.placeholder) {
-            _this.placeholder = 'placeholder';
-        }
-        if (!_this.value) {
-            _this.value = '';
-        }
+    /**
+     * @param {?} _cdr
+     */
+    function TextInputComponent(_cdr) {
+        var _this = _super.call(this, ['hover', 'focus', 'mouse-down', 'validate-success', 'validate-error', 'validating']) || this;
+        _this._cdr = _cdr;
+        _this.valueChanged = new EventEmitter();
+        _this.tailClicked = new EventEmitter();
+        _this.iconClicked = new EventEmitter();
+        _this.labelClicked = new EventEmitter();
+        _this.validated = new EventEmitter();
         return _this;
     }
     Object.defineProperty(TextInputComponent.prototype, "disable", {
@@ -110,28 +166,170 @@ var TextInputComponent = (function (_super) {
     TextInputComponent.prototype.hasLabel = function () {
         return !!this.label;
     };
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    TextInputComponent.prototype.onInput = function (event) {
+        this.value = event.target.value;
+        this.valueChanged.emit(this.value);
+        this.doValidate(true);
+    };
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    TextInputComponent.prototype.onChange = function (event) {
+        this.value = event.target.value;
+        this.valueChanged.emit(this.value);
+        this.doValidate(false);
+    };
+    /**
+     * @param {?=} onInput
+     * @return {?}
+     */
+    TextInputComponent.prototype.doValidate = function (onInput) {
+        var _this = this;
+        if (onInput === void 0) { onInput = false; }
+        if (!this.isDisabled && this.validateHelper) {
+            this.setStatus(['validating']);
+            this.unsetStatus(['validate-error']);
+            this.unsetStatus(['validate-success']);
+            this.validateHelper.doValidate(this.value, onInput).then(function (ret) {
+                _this.unsetStatus(['validating']);
+                _this.unsetStatus(['validate-error']);
+                _this.setStatus(['validate-success']);
+                _this.validated.emit(ret);
+            }).catch(function (err) {
+                _this.unsetStatus(['validating']);
+                _this.unsetStatus(['validate-success']);
+                _this.setStatus(['validate-error']);
+                _this.validated.emit(err);
+            });
+        }
+    };
+    /**
+     * @return {?}
+     */
+    TextInputComponent.prototype.tailClick = function () {
+        if (!this.isDisabled) {
+            this.tailClicked.emit(null);
+        }
+    };
+    /**
+     * @return {?}
+     */
+    TextInputComponent.prototype.iconClick = function () {
+        if (!this.isDisabled) {
+            this.iconClicked.emit(null);
+        }
+    };
+    /**
+     * @return {?}
+     */
+    TextInputComponent.prototype.labelClick = function () {
+        if (!this.isDisabled) {
+            this.labelClicked.emit(null);
+        }
+    };
+    /**
+     * @return {?}
+     */
+    TextInputComponent.prototype.mouseEnter = function () {
+        this.setStatus(['hover']);
+    };
+    /**
+     * @return {?}
+     */
+    TextInputComponent.prototype.mouseLeave = function () {
+        this.unsetStatus(['hover']);
+    };
+    /**
+     * @return {?}
+     */
+    TextInputComponent.prototype.inputFocus = function () {
+        this.setStatus(['focus']);
+    };
+    /**
+     * @return {?}
+     */
+    TextInputComponent.prototype.inputBlur = function () {
+        this.unsetStatus(['focus']);
+    };
+    /**
+     * @return {?}
+     */
+    TextInputComponent.prototype.focusInput = function () {
+        if (!this.isDisabled) {
+            this._cdr.detectChanges();
+            this.inputElement.nativeElement.focus();
+        }
+    };
+    /**
+     * @return {?}
+     */
+    TextInputComponent.prototype.selectAll = function () {
+        if (!this.isDisabled) {
+            this._cdr.detectChanges();
+            this.inputElement.nativeElement.select(0, this.value.length);
+        }
+    };
+    /**
+     * @return {?}
+     */
+    TextInputComponent.prototype.clearText = function () {
+        if (!this.isDisabled) {
+            this._cdr.detectChanges();
+            this.value = '';
+            this.valueChanged.emit(this.value);
+            this.doValidate();
+        }
+    };
+    /**
+     * @return {?}
+     */
+    TextInputComponent.prototype.ngOnInit = function () {
+        if (!this.type) {
+            this.type = 'text';
+        }
+        if (!this.placeholder) {
+            this.placeholder = 'placeholder';
+        }
+        this.valueChanged.emit(this.value);
+        this.doValidate();
+    };
     return TextInputComponent;
 }(ComponentWithStatus));
 TextInputComponent.decorators = [
     { type: Component, args: [{
+                changeDetection: ChangeDetectionStrategy.OnPush,
                 encapsulation: ViewEncapsulation.None,
                 selector: 'aui-text-input',
-                template: "\n    <div class=\"aui-text-input-outlet\" [ngClass]=\"dumpStatus()\">\n      <div class=\"input-block\">\n        <span auiIcon [iconObj]=\"icon\" *ngIf=\"hasIcon()\" class=\"icon\"></span>\n        <span class=\"label\" *ngIf=\"hasLabel()\">{{label}}</span>\n        <input [type]=\"type\" [value]=\"value\" [disabled]=\"isDisabled\" [placeholder]=\"placeholder\"/>\n        <span class=\"tail\" auiIcon [iconObj]=\"tail\" *ngIf=\"hasTail()\"></span>\n      </div>\n    </div>\n  ",
-                styles: ["\n\n  "]
+                template: "\n    <div class=\"aui-text-input-outlet\" [ngClass]=\"dumpStatus()\" (mouseenter)=\"mouseEnter()\" (mouseleave)=\"mouseLeave()\">\n      <div class=\"input-block\">\n        <span auiIcon\n              (click)=\"iconClick()\"\n              [iconObj]=\"icon\"\n              *ngIf=\"hasIcon()\"\n              class=\"icon\"></span>\n        <span class=\"label\"\n              *ngIf=\"hasLabel()\"\n              (click)=\"labelClick() \">{{label}}</span>\n        <input [type]=\"type\"\n               [value]=\"value\"\n               [disabled]=\"isDisabled\"\n               [placeholder]=\"placeholder\"\n               (change)=\"onChange($event)\"\n               (input)=\"onInput($event)\"\n               (focus)=\"inputFocus()\"\n               (blur)=\"inputBlur()\" #input/>\n        <span class=\"tail\"\n              auiIcon [iconObj]=\"tail\"\n              *ngIf=\"hasTail()\"\n              (click)=\"tailClick()\"></span>\n      </div>\n    </div>\n  ",
+                styles: ["\n    .aui-text-input-outlet{display:inline-block}\n  "]
             },] },
 ];
 /**
  * @nocollapse
  */
-TextInputComponent.ctorParameters = function () { return []; };
+TextInputComponent.ctorParameters = function () { return [
+    { type: ChangeDetectorRef, },
+]; };
 TextInputComponent.propDecorators = {
     'value': [{ type: Input },],
+    'validateHelper': [{ type: Input },],
     'placeholder': [{ type: Input },],
     'icon': [{ type: Input },],
     'tail': [{ type: Input },],
     'label': [{ type: Input },],
     'type': [{ type: Input },],
     'disable': [{ type: Input },],
+    'valueChanged': [{ type: Output },],
+    'tailClicked': [{ type: Output },],
+    'iconClicked': [{ type: Output },],
+    'labelClicked': [{ type: Output },],
+    'validated': [{ type: Output },],
+    'inputElement': [{ type: ViewChild, args: ['input',] },],
 };
 
 var AuiComponentModule = (function () {
@@ -141,7 +339,9 @@ var AuiComponentModule = (function () {
 }());
 AuiComponentModule.decorators = [
     { type: NgModule, args: [{
-                imports: [CommonModule],
+                imports: [
+                    CommonModule
+                ],
                 declarations: [
                     IconDirective,
                     TextInputComponent
@@ -157,11 +357,60 @@ AuiComponentModule.decorators = [
  */
 AuiComponentModule.ctorParameters = function () { return []; };
 
+var ValidateHelper = (function () {
+    /**
+     * @param {?} validateHandlers
+     * @param {?=} sM
+     */
+    function ValidateHelper(validateHandlers, sM) {
+        this.handlers = [];
+        this.successMessage = '';
+        this.handlers = this.handlers.concat(validateHandlers);
+        if (sM) {
+            this.successMessage = sM;
+        }
+    }
+    /**
+     * @param {?} value
+     * @param {?} onInput
+     * @return {?}
+     */
+    ValidateHelper.prototype.doValidate = function (value, onInput) {
+        var /** @type {?} */ ret = {
+            ret: true,
+            msg: this.successMessage
+        };
+        var /** @type {?} */ arr = [];
+        if (onInput) {
+            for (var _i = 0, _a = this.handlers; _i < _a.length; _i++) {
+                var validateHandler = _a[_i];
+                if (validateHandler.validateOnInput) {
+                    arr.push(validateHandler.doValidate(value));
+                }
+            }
+        }
+        else {
+            for (var _b = 0, _c = this.handlers; _b < _c.length; _b++) {
+                var validateHandler = _c[_b];
+                arr.push(validateHandler.doValidate(value));
+            }
+        }
+        return new Promise(function (resolve, reject) {
+            Promise.all(arr).then(function (validate) {
+                resolve(ret);
+            }).catch(function (err) {
+                reject(err);
+            });
+        });
+    };
+    return ValidateHelper;
+}());
+
 // export * from './your/main.module';
 
 /**
  * Generated bundle index. Do not edit.
  */
 
-export { AuiComponentModule, IconObj, IconDirective, TextInputComponent };
+export { AuiComponentModule, IconObj, IconDirective, TextInputComponent, ComponentWithStatus, ValidateHelper };
 //# sourceMappingURL=component.es5.js.map

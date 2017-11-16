@@ -17,7 +17,7 @@ export class AppComponent {
       name: 'window-close'
     };
     setInterval(() => {
-      const random = parseInt(Math.random() * iconArray.length, 10);
+      const random = parseInt(Math.random() * iconArray.length + '', 10);
       this.iconObj = {
         family: 'common-icon',
         name: iconArray[random].name

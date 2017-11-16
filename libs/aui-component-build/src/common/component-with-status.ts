@@ -21,17 +21,17 @@ export class ComponentWithStatus {
       }
     }
   }
-  dumpStatus (): string[] {
+  dumpStatus (): string {
     const ret = [];
     if (this.isDisabled) {
       ret.push('disable');
-      return ret;
+      return ret.join(' ');
     }
     for (const s of Object.getOwnPropertyNames(this.status)) {
       if ( this.status.hasOwnProperty(s) && this.status[s]) {
         ret.push(s);
       }
     }
-    return ret;
+    return ret.join(' ');
   }
 }

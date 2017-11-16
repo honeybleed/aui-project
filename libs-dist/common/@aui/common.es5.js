@@ -139,67 +139,11 @@ AuiCommonModule.ctorParameters = function () { return [
     { type: AuiCommonModule, decorators: [{ type: Optional }, { type: SkipSelf },] },
 ]; };
 
-var ComponentWithStatus = (function () {
-    /**
-     * @param {?} s
-     */
-    function ComponentWithStatus(s) {
-        this.isDisabled = false;
-        this.status = {};
-        for (var _i = 0, s_1 = s; _i < s_1.length; _i++) {
-            var i = s_1[_i];
-            this.status[i] = false;
-        }
-    }
-    /**
-     * @param {?} keys
-     * @return {?}
-     */
-    ComponentWithStatus.prototype.setStatus = function (keys) {
-        for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
-            var i = keys_1[_i];
-            if (this.status.hasOwnProperty(i)) {
-                this.status[i] = true;
-            }
-        }
-    };
-    /**
-     * @param {?} keys
-     * @return {?}
-     */
-    ComponentWithStatus.prototype.unsetStatus = function (keys) {
-        for (var _i = 0, keys_2 = keys; _i < keys_2.length; _i++) {
-            var i = keys_2[_i];
-            if (this.status.hasOwnProperty(i)) {
-                this.status[i] = false;
-            }
-        }
-    };
-    /**
-     * @return {?}
-     */
-    ComponentWithStatus.prototype.dumpStatus = function () {
-        var /** @type {?} */ ret = [];
-        if (this.isDisabled) {
-            ret.push('disable');
-            return ret;
-        }
-        for (var _i = 0, _a = Object.getOwnPropertyNames(this.status); _i < _a.length; _i++) {
-            var s = _a[_i];
-            if (this.status.hasOwnProperty(s) && this.status[s]) {
-                ret.push(s);
-            }
-        }
-        return ret;
-    };
-    return ComponentWithStatus;
-}());
-
 // export * from './your/main.module';
 
 /**
  * Generated bundle index. Do not edit.
  */
 
-export { AuiCommonModule, IconManageService, IconMap, commonIcons, IconConfig, ComponentWithStatus };
+export { AuiCommonModule, IconManageService, IconMap, commonIcons, IconConfig };
 //# sourceMappingURL=common.es5.js.map

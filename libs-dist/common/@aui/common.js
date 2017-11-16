@@ -130,62 +130,11 @@ AuiCommonModule.ctorParameters = () => [
     { type: AuiCommonModule, decorators: [{ type: Optional }, { type: SkipSelf },] },
 ];
 
-class ComponentWithStatus {
-    /**
-     * @param {?} s
-     */
-    constructor(s) {
-        this.isDisabled = false;
-        this.status = {};
-        for (const i of s) {
-            this.status[i] = false;
-        }
-    }
-    /**
-     * @param {?} keys
-     * @return {?}
-     */
-    setStatus(keys) {
-        for (const /** @type {?} */ i of keys) {
-            if (this.status.hasOwnProperty(i)) {
-                this.status[i] = true;
-            }
-        }
-    }
-    /**
-     * @param {?} keys
-     * @return {?}
-     */
-    unsetStatus(keys) {
-        for (const /** @type {?} */ i of keys) {
-            if (this.status.hasOwnProperty(i)) {
-                this.status[i] = false;
-            }
-        }
-    }
-    /**
-     * @return {?}
-     */
-    dumpStatus() {
-        const /** @type {?} */ ret = [];
-        if (this.isDisabled) {
-            ret.push('disable');
-            return ret;
-        }
-        for (const /** @type {?} */ s of Object.getOwnPropertyNames(this.status)) {
-            if (this.status.hasOwnProperty(s) && this.status[s]) {
-                ret.push(s);
-            }
-        }
-        return ret;
-    }
-}
-
 // export * from './your/main.module';
 
 /**
  * Generated bundle index. Do not edit.
  */
 
-export { AuiCommonModule, IconManageService, IconMap, commonIcons, IconConfig, ComponentWithStatus };
+export { AuiCommonModule, IconManageService, IconMap, commonIcons, IconConfig };
 //# sourceMappingURL=common.js.map

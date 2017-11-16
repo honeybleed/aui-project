@@ -4,7 +4,9 @@ import { IconDirective } from './icon/icon.directive';
 import { TextInputComponent } from './text-input/text-input.component';
 
 @NgModule({
-  imports: [CommonModule],
+  imports: [
+    CommonModule
+  ],
   declarations: [
     IconDirective,
     TextInputComponent
