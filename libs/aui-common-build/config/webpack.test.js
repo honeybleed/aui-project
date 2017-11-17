@@ -111,6 +111,6 @@ const getConfig = (hasCoverage, isTddMode) => {
             setImmediate: false
         }
     };
-}
+};
 
 module.exports.getConfig = getConfig;

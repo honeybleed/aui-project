@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Directive, ElementRef, EventEmitter, Input, NgModule, Output, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Directive, ElementRef, EventEmitter, HostListener, Input, NgModule, Output, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconManageService } from '@aui/common';
 
@@ -27,8 +27,17 @@ class IconDirective {
      */
     _renderIcon() {
         if (this._iconObj) {
-            this._el.nativeElement.innerText = this._ims.getIcon(this._iconObj.family, this._iconObj.name).code;
-            this._el.nativeElement.style.fontFamily = this._iconObj.family;
+            const /** @type {?} */ foundIcon = this._ims.getIcon(this._iconObj.family, this._iconObj.name);
+            if (foundIcon) {
+                this._el.nativeElement.innerText = this._ims.getIcon(this._iconObj.family, this._iconObj.name).code;
+                this._el.nativeElement.style.fontFamily = this._iconObj.family;
+            }
+            else {
+                this._el.nativeElement.innerText = this._iconObj.name;
+                console.warn(`icon object described as ` +
+                    `[family: ${this._iconObj.family}, name: ${this._iconObj.name}] ` +
+                    `was not found! we show the icon name [${this._iconObj.name}] for replacement!`);
+            }
         }
     }
 }
@@ -280,10 +289,11 @@ TextInputComponent.decorators = [
               (click)="iconClick()"
               [iconObj]="icon"
               *ngIf="hasIcon()"
-              class="icon"></span>
+              class="icon"
+              auiActive ></span>
         <span class="label"
               *ngIf="hasLabel()"
-              (click)="labelClick() ">{{label}}</span>
+              (click)="labelClick()" auiActive >{{label}}</span>
         <input [type]="type"
                [value]="value"
                [disabled]="isDisabled"
@@ -295,12 +305,12 @@ TextInputComponent.decorators = [
         <span class="tail"
               auiIcon [iconObj]="tail"
               *ngIf="hasTail()"
-              (click)="tailClick()"></span>
+              (click)="tailClick()" auiActive ></span>
       </div>
     </div>
   `,
                 styles: [`
-    .aui-text-input-outlet{display:inline-block}
+
   `]
             },] },
 ];
@@ -327,6 +337,114 @@ TextInputComponent.propDecorators = {
     'inputElement': [{ type: ViewChild, args: ['input',] },],
 };
 
+class ActiveDirective {
+    /**
+     * @param {?} _el
+     * @param {?} _renderer
+     */
+    constructor(_el, _renderer) {
+        this._el = _el;
+        this._renderer = _renderer;
+    }
+    /**
+     * @return {?}
+     */
+    appendRange() {
+        this.activeEl = this._renderer.createElement('span');
+        this._renderer.addClass(this.activeEl, 'active-range');
+        if (this._el.nativeElement.style.position !== 'absolute' && this._el.nativeElement.style.position !== 'relative') {
+            this._renderer.setStyle(this._el.nativeElement, 'position', 'relative');
+        }
+        if (this._el.nativeElement.style.zIndex === '') {
+            this._renderer.setStyle(this._el.nativeElement, 'zIndex', '0');
+        }
+        this._renderer.setStyle(this.activeEl, 'position', 'absolute');
+        this._renderer.setStyle(this.activeEl, 'overflow', 'hidden');
+        this._renderer.setStyle(this.activeEl, 'z-index', '-1');
+        this._renderer.setStyle(this.activeEl, 'left', '0');
+        this._renderer.setStyle(this.activeEl, 'right', '0');
+        this._renderer.setStyle(this.activeEl, 'top', '0');
+        this._renderer.setStyle(this.activeEl, 'bottom', '0');
+        // this._renderer.setStyle(this.activeEl, 'backgroundColor', 'red');
+        this._renderer.insertBefore(this._el.nativeElement, this.activeEl, this._el.nativeElement.childNodes[0]);
+    }
+    /**
+     * @return {?}
+     */
+    appendPoint() {
+        const /** @type {?} */ width = this._el.nativeElement.offsetWidth;
+        const /** @type {?} */ height = this._el.nativeElement.offsetHeight;
+        const /** @type {?} */ point = this._renderer.createElement('span');
+        const /** @type {?} */ startD = Math.ceil(Math.max(width, height) / 2);
+        const /** @type {?} */ distD = Math.ceil(Math.sqrt(width * width + height * height));
+        const /** @type {?} */ zoom = Math.ceil(distD / startD);
+        const /** @type {?} */ startPosition = {
+            left: Math.ceil((width - startD) / 2),
+            top: Math.ceil((height - startD) / 2)
+        };
+        this._renderer.setStyle(point, 'position', 'absolute');
+        this._renderer.setStyle(point, 'display', 'block');
+        this._renderer.setStyle(point, 'width', startD + 'px');
+        this._renderer.setStyle(point, 'height', startD + 'px');
+        this._renderer.setStyle(point, 'left', startPosition.left + 'px');
+        this._renderer.setStyle(point, 'top', startPosition.top + 'px');
+        this._renderer.setStyle(point, 'backgroundColor', 'rgba(0,0,0,.2)');
+        this._renderer.setStyle(point, 'borderRadius', '100%');
+        this._renderer.setStyle(point, 'transition', 'all .4s ease-out');
+        this._renderer.setStyle(point, 'transform', `scale(1)`);
+        this._renderer.appendChild(this.activeEl, point);
+        setTimeout(() => {
+            this._renderer.setStyle(point, 'transform', `scale(${zoom})`);
+        }, 0);
+        setTimeout(() => {
+            this._renderer.setStyle(point, 'transition', 'all .2s ease-out');
+            this._renderer.setStyle(point, 'opacity', `0`);
+        }, 400);
+        setTimeout(() => {
+            this._renderer.removeChild(this.activeEl, point);
+        }, 600);
+    }
+    /**
+     * @return {?}
+     */
+    ngAfterViewInit() {
+        this.appendRange();
+    }
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    onMouseDown(event) {
+        console.dir(event);
+        if (event.button === 0) {
+            this.appendPoint();
+        }
+    }
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    onMouseUp(event) {
+        
+    }
+}
+ActiveDirective.decorators = [
+    { type: Directive, args: [{
+                selector: '[auiActive]'
+            },] },
+];
+/**
+ * @nocollapse
+ */
+ActiveDirective.ctorParameters = () => [
+    { type: ElementRef, },
+    { type: Renderer2, },
+];
+ActiveDirective.propDecorators = {
+    'onMouseDown': [{ type: HostListener, args: ['mousedown', ['$event'],] },],
+    'onMouseUp': [{ type: HostListener, args: ['mouseup', ['$event'],] },],
+};
+
 class AuiComponentModule {
     constructor() { }
 }
@@ -336,10 +454,12 @@ AuiComponentModule.decorators = [
                     CommonModule
                 ],
                 declarations: [
+                    ActiveDirective,
                     IconDirective,
                     TextInputComponent
                 ],
                 exports: [
+                    ActiveDirective,
                     IconDirective,
                     TextInputComponent
                 ]
@@ -402,5 +522,5 @@ class ValidateHelper {
  * Generated bundle index. Do not edit.
  */
 
-export { AuiComponentModule, IconObj, IconDirective, TextInputComponent, ComponentWithStatus, ValidateHelper };
+export { AuiComponentModule, IconObj, IconDirective, ActiveDirective, TextInputComponent, ComponentWithStatus, ValidateHelper };
 //# sourceMappingURL=component.js.map

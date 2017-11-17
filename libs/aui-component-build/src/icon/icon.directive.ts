@@ -19,8 +19,16 @@ export class IconDirective {
   }
   private _renderIcon() {
     if (this._iconObj) {
-      this._el.nativeElement.innerText = this._ims.getIcon(this._iconObj.family, this._iconObj.name).code;
-      this._el.nativeElement.style.fontFamily = this._iconObj.family;
+      const foundIcon = this._ims.getIcon(this._iconObj.family, this._iconObj.name);
+      if (foundIcon) {
+        this._el.nativeElement.innerText = this._ims.getIcon(this._iconObj.family, this._iconObj.name).code;
+        this._el.nativeElement.style.fontFamily = this._iconObj.family;
+      } else {
+        this._el.nativeElement.innerText = this._iconObj.name;
+        console.warn(`icon object described as ` +
+          `[family: ${this._iconObj.family}, name: ${this._iconObj.name}] ` +
+          `was not found! we show the icon name [${this._iconObj.name}] for replacement!`);
+      }
     }
   }
 }

@@ -1,46 +1,17 @@
 .info-main-layer {
   padding: 10px;
   overflow-y: auto;
-}
-.family-group {
-  padding: 10px;
-  .family-title {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    border-left: 10px solid #0099ff;
-    .title {
-      color: #888;
-      font-weight: bold;
-    }
-    .value {
-      margin-left: 10px;
-      padding: 2px 5px;
-      background: #fff;
-      border-radius: 5px;
-    }
-  }
-  .family-icons {
-    margin-top: 10px;
-    padding: 20px;
-    background-color: #FFF;
-    .icon-item {
-      display: inline-block;
-      padding: 10px;
-      border: 1px solid #eee;
-      margin: 0 10px;
-      .icon {
-        display: block;
-        font-size: 20px;
-        text-align: center;
-      }
-      .icon-code {
-        display: block;
-        font-size: 14px;
-        text-align: center;
+  .example {
+    .example-item {
+      .aui-text-input-outlet {
+        background: #0099ff;
+        .input-block {
+          .label {
+            width: 200px;
+            text-align: center;
+          }
+        }
       }
     }
-  }
-  .usage {
-
   }
 }

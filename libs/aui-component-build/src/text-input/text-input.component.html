@@ -4,10 +4,11 @@
           (click)="iconClick()"
           [iconObj]="icon"
           *ngIf="hasIcon()"
-          class="icon"></span>
+          class="icon"
+          auiActive ></span>
     <span class="label"
           *ngIf="hasLabel()"
-          (click)="labelClick() ">{{label}}</span>
+          (click)="labelClick()" auiActive >{{label}}</span>
     <input [type]="type"
            [value]="value"
            [disabled]="isDisabled"
@@ -19,6 +20,6 @@
     <span class="tail"
           auiIcon [iconObj]="tail"
           *ngIf="hasTail()"
-          (click)="tailClick()"></span>
+          (click)="tailClick()" auiActive ></span>
   </div>
 </div>

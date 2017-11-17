@@ -10,6 +10,7 @@ import { HasAValidateHandler, LengValidateHandler } from './test-validate-hander
   styleUrls: ['./text-input-info.component.scss']
 })
 export class TextInputInfoComponent implements AfterViewInit, OnInit {
+  type = 'password';
   desc: string;
   icon: IconObj;
   tail: IconObj;
@@ -22,7 +23,11 @@ export class TextInputInfoComponent implements AfterViewInit, OnInit {
   constructor() {
   }
   tailClick() {
-    this.input.selectAll();
+    if (this.type === 'text') {
+      this.type = 'password';
+    } else {
+      this.type = 'text';
+    }
     // this.input.clearText();
   }
   validEmit(r: ValidateRet) {
@@ -37,7 +42,7 @@ export class TextInputInfoComponent implements AfterViewInit, OnInit {
     this.desc = '@aui/text-input 组件用以提供单行文字输入和密码输入的输入框';
     this.icon = {
       family: 'common-icon',
-      name: 'eye'
+      name: '123'
     };
     this.tail = {
       family: 'common-icon',

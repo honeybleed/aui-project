@@ -8,6 +8,7 @@
                       [label]="label"
                       [tail]="tail"
                       [disable]="false"
+                      [type]="type"
                       (tailClicked)="tailClick($event)"
                       (valueChanged)="value = $event" [validateHelper]="vh" (validated)="validEmit($event)" #input></aui-text-input>
     </div>
