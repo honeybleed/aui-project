@@ -6,6 +6,7 @@ import { ComponentWithStatus } from '../common/component-with-status';
 import { IconObj } from '../icon/icon.directive';
 import { ValidateRet } from '../common/validate-ret';
 import { ValidateHelper } from '../common/validate-helper';
+import { ActiveOption } from '../common/active-option';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,12 +18,17 @@ import { ValidateHelper } from '../common/validate-helper';
   ]
 })
 export class TextInputComponent extends ComponentWithStatus implements OnInit {
+  @Input() isWholeActive: ActiveOption;
+  @Input() isIconActive: ActiveOption;
+  @Input() isLabelActive: ActiveOption;
+  @Input() isTailActive: ActiveOption;
   @Input() value: string;
   @Input() validateHelper: ValidateHelper;
   @Input() placeholder: string;
   @Input() icon: IconObj;
   @Input() tail: IconObj;
   @Input() label: string;
+  @Input() readonly: boolean;
   @Input() type: 'text' | 'password';
   @Input()
   set disable(v: boolean) {

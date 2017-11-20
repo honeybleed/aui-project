@@ -1,14 +1,19 @@
-<div class="aui-text-input-outlet" [ngClass]="dumpStatus()" (mouseenter)="mouseEnter()" (mouseleave)="mouseLeave()">
+<div class="aui-text-input-outlet"
+     [ngClass]="dumpStatus()"
+     (mouseenter)="mouseEnter()"
+     (mouseleave)="mouseLeave()"
+     [auiActive]="isWholeActive">
   <div class="input-block">
     <span auiIcon
           (click)="iconClick()"
           [iconObj]="icon"
           *ngIf="hasIcon()"
           class="icon"
-          auiActive ></span>
+          [auiActive]="isIconActive" ></span>
     <span class="label"
           *ngIf="hasLabel()"
-          (click)="labelClick()" auiActive >{{label}}</span>
+          (click)="labelClick()"
+          [auiActive]="isLabelActive" >{{label}}</span>
     <input [type]="type"
            [value]="value"
            [disabled]="isDisabled"
@@ -16,10 +21,11 @@
            (change)="onChange($event)"
            (input)="onInput($event)"
            (focus)="inputFocus()"
-           (blur)="inputBlur()" #input/>
+           (blur)="inputBlur()" [readonly]="readonly" #input/>
     <span class="tail"
           auiIcon [iconObj]="tail"
           *ngIf="hasTail()"
-          (click)="tailClick()" auiActive ></span>
+          (click)="tailClick()"
+          [auiActive]="isTailActive" ></span>
   </div>
 </div>

@@ -7,3 +7,4 @@ export * from './common/component-with-status';
 export * from './common/validate-handler';
 export * from './common/validate-ret';
 export * from './common/validate-helper';
+export * from './common/active-option';

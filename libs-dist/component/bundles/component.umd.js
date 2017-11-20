@@ -316,7 +316,7 @@ TextInputComponent.decorators = [
                 changeDetection: core.ChangeDetectionStrategy.OnPush,
                 encapsulation: core.ViewEncapsulation.None,
                 selector: 'aui-text-input',
-                template: "\n    <div class=\"aui-text-input-outlet\" [ngClass]=\"dumpStatus()\" (mouseenter)=\"mouseEnter()\" (mouseleave)=\"mouseLeave()\">\n      <div class=\"input-block\">\n        <span auiIcon\n              (click)=\"iconClick()\"\n              [iconObj]=\"icon\"\n              *ngIf=\"hasIcon()\"\n              class=\"icon\"\n              auiActive ></span>\n        <span class=\"label\"\n              *ngIf=\"hasLabel()\"\n              (click)=\"labelClick()\" auiActive >{{label}}</span>\n        <input [type]=\"type\"\n               [value]=\"value\"\n               [disabled]=\"isDisabled\"\n               [placeholder]=\"placeholder\"\n               (change)=\"onChange($event)\"\n               (input)=\"onInput($event)\"\n               (focus)=\"inputFocus()\"\n               (blur)=\"inputBlur()\" #input/>\n        <span class=\"tail\"\n              auiIcon [iconObj]=\"tail\"\n              *ngIf=\"hasTail()\"\n              (click)=\"tailClick()\" auiActive ></span>\n      </div>\n    </div>\n  ",
+                template: "\n    <div class=\"aui-text-input-outlet\"\n         [ngClass]=\"dumpStatus()\"\n         (mouseenter)=\"mouseEnter()\"\n         (mouseleave)=\"mouseLeave()\"\n         [auiActive]=\"isWholeActive\">\n      <div class=\"input-block\">\n        <span auiIcon\n              (click)=\"iconClick()\"\n              [iconObj]=\"icon\"\n              *ngIf=\"hasIcon()\"\n              class=\"icon\"\n              [auiActive]=\"isIconActive\" ></span>\n        <span class=\"label\"\n              *ngIf=\"hasLabel()\"\n              (click)=\"labelClick()\"\n              [auiActive]=\"isLabelActive\" >{{label}}</span>\n        <input [type]=\"type\"\n               [value]=\"value\"\n               [disabled]=\"isDisabled\"\n               [placeholder]=\"placeholder\"\n               (change)=\"onChange($event)\"\n               (input)=\"onInput($event)\"\n               (focus)=\"inputFocus()\"\n               (blur)=\"inputBlur()\" [readonly]=\"readonly\" #input/>\n        <span class=\"tail\"\n              auiIcon [iconObj]=\"tail\"\n              *ngIf=\"hasTail()\"\n              (click)=\"tailClick()\"\n              [auiActive]=\"isTailActive\" ></span>\n      </div>\n    </div>\n  ",
                 styles: ["\n\n  "]
             },] },
 ];
@@ -327,12 +327,17 @@ TextInputComponent.ctorParameters = function () { return [
     { type: core.ChangeDetectorRef, },
 ]; };
 TextInputComponent.propDecorators = {
+    'isWholeActive': [{ type: core.Input },],
+    'isIconActive': [{ type: core.Input },],
+    'isLabelActive': [{ type: core.Input },],
+    'isTailActive': [{ type: core.Input },],
     'value': [{ type: core.Input },],
     'validateHelper': [{ type: core.Input },],
     'placeholder': [{ type: core.Input },],
     'icon': [{ type: core.Input },],
     'tail': [{ type: core.Input },],
     'label': [{ type: core.Input },],
+    'readonly': [{ type: core.Input },],
     'type': [{ type: core.Input },],
     'disable': [{ type: core.Input },],
     'valueChanged': [{ type: core.Output },],
@@ -341,6 +346,12 @@ TextInputComponent.propDecorators = {
     'labelClicked': [{ type: core.Output },],
     'validated': [{ type: core.Output },],
     'inputElement': [{ type: core.ViewChild, args: ['input',] },],
+};
+
+var defaultActiveOption = {
+    isActive: true,
+    speed: 200,
+    color: 'rgba(0,0,0,.3)'
 };
 
 var ActiveDirective = (function () {
@@ -352,6 +363,26 @@ var ActiveDirective = (function () {
         this._el = _el;
         this._renderer = _renderer;
     }
+    Object.defineProperty(ActiveDirective.prototype, "auiActive", {
+        /**
+         * @param {?} v
+         * @return {?}
+         */
+        set: function (v) {
+            if (v) {
+                this._aui_active = defaultActiveOption;
+                if (v.color) {
+                    this._aui_active.color = v.color;
+                }
+                if (v.speed) {
+                    this._aui_active.speed = v.speed;
+                }
+                this._aui_active.isActive = v.isActive;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     /**
      * @return {?}
      */
@@ -382,7 +413,7 @@ var ActiveDirective = (function () {
         var /** @type {?} */ width = this._el.nativeElement.offsetWidth;
         var /** @type {?} */ height = this._el.nativeElement.offsetHeight;
         var /** @type {?} */ point = this._renderer.createElement('span');
-        var /** @type {?} */ startD = Math.ceil(Math.max(width, height) / 2);
+        var /** @type {?} */ startD = Math.ceil(Math.max(width, height) / 4);
         var /** @type {?} */ distD = Math.ceil(Math.sqrt(width * width + height * height));
         var /** @type {?} */ zoom = Math.ceil(distD / startD);
         var /** @type {?} */ startPosition = {
@@ -395,9 +426,9 @@ var ActiveDirective = (function () {
         this._renderer.setStyle(point, 'height', startD + 'px');
         this._renderer.setStyle(point, 'left', startPosition.left + 'px');
         this._renderer.setStyle(point, 'top', startPosition.top + 'px');
-        this._renderer.setStyle(point, 'backgroundColor', 'rgba(0,0,0,.2)');
+        this._renderer.setStyle(point, 'backgroundColor', this._aui_active.color);
         this._renderer.setStyle(point, 'borderRadius', '100%');
-        this._renderer.setStyle(point, 'transition', 'all .4s ease-out');
+        this._renderer.setStyle(point, 'transition', 'all ' + this._aui_active.speed + 'ms ease-out');
         this._renderer.setStyle(point, 'transform', "scale(1)");
         this._renderer.appendChild(this.activeEl, point);
         setTimeout(function () {
@@ -406,10 +437,10 @@ var ActiveDirective = (function () {
         setTimeout(function () {
             _this._renderer.setStyle(point, 'transition', 'all .2s ease-out');
             _this._renderer.setStyle(point, 'opacity', "0");
-        }, 400);
+        }, this._aui_active.speed);
         setTimeout(function () {
             _this._renderer.removeChild(_this.activeEl, point);
-        }, 600);
+        }, this._aui_active.speed + 200);
     };
     /**
      * @return {?}
@@ -422,8 +453,7 @@ var ActiveDirective = (function () {
      * @return {?}
      */
     ActiveDirective.prototype.onMouseDown = function (event) {
-        console.dir(event);
-        if (event.button === 0) {
+        if (this._aui_active && this._aui_active.isActive && event.button === 0) {
             this.appendPoint();
         }
     };
@@ -449,6 +479,7 @@ ActiveDirective.ctorParameters = function () { return [
     { type: core.Renderer2, },
 ]; };
 ActiveDirective.propDecorators = {
+    'auiActive': [{ type: core.Input },],
     'onMouseDown': [{ type: core.HostListener, args: ['mousedown', ['$event'],] },],
     'onMouseUp': [{ type: core.HostListener, args: ['mouseup', ['$event'],] },],
 };
@@ -542,6 +573,7 @@ exports.ActiveDirective = ActiveDirective;
 exports.TextInputComponent = TextInputComponent;
 exports.ComponentWithStatus = ComponentWithStatus;
 exports.ValidateHelper = ValidateHelper;
+exports.defaultActiveOption = defaultActiveOption;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 

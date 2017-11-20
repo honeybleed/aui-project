@@ -5,12 +5,18 @@
     <div class="example-item">
       <aui-text-input [icon]="icon"
                       [value]="defaultValue"
+                      [readonly]="false"
                       [label]="label"
                       [tail]="tail"
                       [disable]="false"
                       [type]="type"
                       (tailClicked)="tailClick($event)"
-                      (valueChanged)="value = $event" [validateHelper]="vh" (validated)="validEmit($event)" #input></aui-text-input>
+                      (valueChanged)="value = $event"
+                      [validateHelper]="vh"
+                      (validated)="validEmit($event)"
+                      [isWholeActive]="activeStyle"
+                      (click) = "doClick()"
+                      #input></aui-text-input>
     </div>
     {{value}}
   </div>

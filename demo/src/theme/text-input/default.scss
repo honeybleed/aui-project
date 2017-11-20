@@ -1,0 +1,47 @@
+.aui-text-input-outlet {
+  display: inline-block;
+  position: relative;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: #f0f0f0;
+  .input-block {
+    display: table;
+    vertical-align: middle;
+    position: relative;
+    .icon,.label,.tail{
+      cursor: pointer;
+      user-select: none;
+      padding: 5px 10px;
+      font-size: 1rem;
+      color: #888;
+      -webkit-transition: all .2s;
+      -moz-transition: all .2s;
+      -ms-transition: all .2s;
+      -o-transition: all .2s;
+      transition: all .2s;
+      &:hover{
+        color: #0099ff;
+      }
+    }
+    .icon,.label,input,.tail {
+      display: table-cell;
+      vertical-align: baseline;
+      position: relative;
+    }
+    input {
+      background: rgba(0,0,0,0);
+      border: 0;
+      font-size: inherit;
+      -webkit-appearance: none;
+      outline: none;
+      padding: 0 10px;
+    }
+  }
+  &.hover {
+    border-color: #0099ff;
+  }
+  &.focus {
+    border-color: #0099ff;
+    background-color: #FFF;
+  }
+}

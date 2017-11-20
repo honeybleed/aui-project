@@ -1,9 +1,25 @@
-import { AfterViewChecked, AfterViewInit, Directive, ElementRef, Host, HostListener, Renderer2 } from '@angular/core';
+import { AfterViewInit, Directive, ElementRef, Host, HostListener, Input, Renderer2 } from '@angular/core';
+import { ActiveOption } from '../common/active-option';
+import { defaultActiveOption } from '../common/active-option';
 
 @Directive({
   selector: '[auiActive]'
 })
 export class ActiveDirective implements AfterViewInit {
+  private _aui_active: ActiveOption;
+  @Input()
+  set auiActive(v: ActiveOption) {
+    if (v) {
+      this._aui_active = defaultActiveOption;
+      if (v.color) {
+        this._aui_active.color = v.color;
+      }
+      if (v.speed) {
+        this._aui_active.speed = v.speed;
+      }
+      this._aui_active.isActive = v.isActive;
+    }
+  }
   private activeEl: any;
   constructor(private _el: ElementRef, private _renderer: Renderer2) {
   }
@@ -30,7 +46,7 @@ export class ActiveDirective implements AfterViewInit {
     const width = this._el.nativeElement.offsetWidth;
     const height = this._el.nativeElement.offsetHeight;
     const point = this._renderer.createElement('span');
-    const startD = Math.ceil( Math.max(width, height) / 2 );
+    const startD = Math.ceil( Math.max(width, height) / 4 );
     const distD = Math.ceil( Math.sqrt(width * width + height * height) );
     const zoom = Math.ceil(distD / startD);
     const startPosition = {
@@ -43,9 +59,9 @@ export class ActiveDirective implements AfterViewInit {
     this._renderer.setStyle(point, 'height', startD + 'px');
     this._renderer.setStyle(point, 'left', startPosition.left + 'px');
     this._renderer.setStyle(point, 'top', startPosition.top + 'px');
-    this._renderer.setStyle(point, 'backgroundColor', 'rgba(0,0,0,.2)');
+    this._renderer.setStyle(point, 'backgroundColor', this._aui_active.color);
     this._renderer.setStyle(point, 'borderRadius', '100%');
-    this._renderer.setStyle(point, 'transition', 'all .4s ease-out');
+    this._renderer.setStyle(point, 'transition', 'all ' + this._aui_active.speed  + 'ms ease-out');
     this._renderer.setStyle(point, 'transform', `scale(1)`);
     this._renderer.appendChild(this.activeEl, point);
     setTimeout(() => {
@@ -54,23 +70,21 @@ export class ActiveDirective implements AfterViewInit {
     setTimeout(() => {
       this._renderer.setStyle(point, 'transition', 'all .2s ease-out');
       this._renderer.setStyle(point, 'opacity', `0`);
-    }, 400);
+    }, this._aui_active.speed);
     setTimeout(() => {
       this._renderer.removeChild(this.activeEl, point);
-    }, 600);
+    }, this._aui_active.speed + 200);
   }
   ngAfterViewInit(): void {
     this.appendRange();
   }
   @HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent) {
-    console.dir(event);
-    if (event.button === 0) {
+    if (this._aui_active && this._aui_active.isActive && event.button === 0) {
       this.appendPoint();
     }
   }
   @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent) {
-    if (event.button === 0) {
-      // this.appendPoint();
+    if (this.auiActive && this.auiActive.isActive && event.button === 0) {
     }
   }
 }
