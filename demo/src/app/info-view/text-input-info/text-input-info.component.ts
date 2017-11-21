@@ -19,17 +19,16 @@ export class TextInputInfoComponent implements AfterViewInit, OnInit {
   defaultValue= '';
   vh: ValidateHelper;
   activeStyle: ActiveOption;
+  newStyle: ActiveOption;
   @ViewChild(TextInputComponent)
   private input: TextInputComponent;
   constructor() {
   }
   tailClick() {
-    // if (this.type === 'text') {
-    //   this.type = 'password';
-    // } else {
-    //   this.type = 'text';
-    // }
     this.input.clearText();
+  }
+  buttonClick() {
+    console.log('button click');
   }
   validEmit(r: ValidateRet) {
     console.dir(r);
@@ -56,6 +55,10 @@ export class TextInputInfoComponent implements AfterViewInit, OnInit {
     this.vh = new ValidateHelper([new LengValidateHandler(10, 5, 'l error'), new HasAValidateHandler('no a')], 'test success');
     this.activeStyle = {
       isActive: true
+    };
+    this.newStyle = {
+      isActive: true,
+      color: 'rgba(255,0,0,.2)'
     };
   }
 }

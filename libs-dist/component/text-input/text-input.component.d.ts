@@ -7,9 +7,13 @@ import { ActiveOption } from '../common/active-option';
 export declare class TextInputComponent extends ComponentWithStatus implements OnInit {
     private _cdr;
     isWholeActive: ActiveOption;
+    readonly wholeActive: ActiveOption;
     isIconActive: ActiveOption;
+    readonly iconActive: ActiveOption;
     isLabelActive: ActiveOption;
+    readonly labelActive: ActiveOption;
     isTailActive: ActiveOption;
+    readonly tailActive: ActiveOption;
     value: string;
     validateHelper: ValidateHelper;
     placeholder: string;

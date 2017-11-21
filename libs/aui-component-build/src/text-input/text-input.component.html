@@ -2,18 +2,18 @@
      [ngClass]="dumpStatus()"
      (mouseenter)="mouseEnter()"
      (mouseleave)="mouseLeave()"
-     [auiActive]="isWholeActive">
+     [auiActive]="wholeActive">
   <div class="input-block">
     <span auiIcon
           (click)="iconClick()"
           [iconObj]="icon"
           *ngIf="hasIcon()"
           class="icon"
-          [auiActive]="isIconActive" ></span>
+          [auiActive]="iconActive" ></span>
     <span class="label"
           *ngIf="hasLabel()"
           (click)="labelClick()"
-          [auiActive]="isLabelActive" >{{label}}</span>
+          [auiActive]="labelActive" >{{label}}</span>
     <input [type]="type"
            [value]="value"
            [disabled]="isDisabled"
@@ -26,6 +26,6 @@
           auiIcon [iconObj]="tail"
           *ngIf="hasTail()"
           (click)="tailClick()"
-          [auiActive]="isTailActive" ></span>
+          [auiActive]="tailActive" ></span>
   </div>
 </div>

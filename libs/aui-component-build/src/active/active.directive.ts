@@ -7,10 +7,11 @@ import { defaultActiveOption } from '../common/active-option';
 })
 export class ActiveDirective implements AfterViewInit {
   private _aui_active: ActiveOption;
+  private _point_cache: any[];
   @Input()
   set auiActive(v: ActiveOption) {
     if (v) {
-      this._aui_active = defaultActiveOption;
+      this._aui_active = Object.assign({}, defaultActiveOption);
       if (v.color) {
         this._aui_active.color = v.color;
       }
@@ -46,6 +47,7 @@ export class ActiveDirective implements AfterViewInit {
     const width = this._el.nativeElement.offsetWidth;
     const height = this._el.nativeElement.offsetHeight;
     const point = this._renderer.createElement('span');
+    this._point_cache.push(point);
     const startD = Math.ceil( Math.max(width, height) / 4 );
     const distD = Math.ceil( Math.sqrt(width * width + height * height) );
     const zoom = Math.ceil(distD / startD);
@@ -67,16 +69,22 @@ export class ActiveDirective implements AfterViewInit {
     setTimeout(() => {
       this._renderer.setStyle(point, 'transform', `scale(${zoom})`);
     }, 0);
-    setTimeout(() => {
-      this._renderer.setStyle(point, 'transition', 'all .2s ease-out');
-      this._renderer.setStyle(point, 'opacity', `0`);
-    }, this._aui_active.speed);
-    setTimeout(() => {
-      this._renderer.removeChild(this.activeEl, point);
-    }, this._aui_active.speed + 200);
+  }
+  private removePoint() {
+    const point = this._point_cache.pop();
+    if (point) {
+      setTimeout(() => {
+        this._renderer.setStyle(point, 'transition', 'all .2s ease-out');
+        this._renderer.setStyle(point, 'opacity', `0`);
+      }, this._aui_active.speed);
+      setTimeout(() => {
+        this._renderer.removeChild(this.activeEl, point);
+      }, this._aui_active.speed + 200);
+    }
   }
   ngAfterViewInit(): void {
     this.appendRange();
+    this._point_cache = [];
   }
   @HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent) {
     if (this._aui_active && this._aui_active.isActive && event.button === 0) {
@@ -84,7 +92,8 @@ export class ActiveDirective implements AfterViewInit {
     }
   }
   @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent) {
-    if (this.auiActive && this.auiActive.isActive && event.button === 0) {
+    if (this._aui_active && this._aui_active.isActive && event.button === 0) {
+      this.removePoint();
     }
   }
 }

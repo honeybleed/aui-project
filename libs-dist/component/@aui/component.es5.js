@@ -146,6 +146,54 @@ var TextInputComponent = (function (_super) {
         _this.validated = new EventEmitter();
         return _this;
     }
+    Object.defineProperty(TextInputComponent.prototype, "wholeActive", {
+        /**
+         * @return {?}
+         */
+        get: function () {
+            if (!this.isDisabled) {
+                return this.isWholeActive;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TextInputComponent.prototype, "iconActive", {
+        /**
+         * @return {?}
+         */
+        get: function () {
+            if (!this.isDisabled) {
+                return this.isIconActive;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TextInputComponent.prototype, "labelActive", {
+        /**
+         * @return {?}
+         */
+        get: function () {
+            if (!this.isDisabled) {
+                return this.isLabelActive;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TextInputComponent.prototype, "tailActive", {
+        /**
+         * @return {?}
+         */
+        get: function () {
+            if (!this.isDisabled) {
+                return this.isTailActive;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(TextInputComponent.prototype, "disable", {
         /**
          * @param {?} v
@@ -314,7 +362,7 @@ TextInputComponent.decorators = [
                 changeDetection: ChangeDetectionStrategy.OnPush,
                 encapsulation: ViewEncapsulation.None,
                 selector: 'aui-text-input',
-                template: "\n    <div class=\"aui-text-input-outlet\"\n         [ngClass]=\"dumpStatus()\"\n         (mouseenter)=\"mouseEnter()\"\n         (mouseleave)=\"mouseLeave()\"\n         [auiActive]=\"isWholeActive\">\n      <div class=\"input-block\">\n        <span auiIcon\n              (click)=\"iconClick()\"\n              [iconObj]=\"icon\"\n              *ngIf=\"hasIcon()\"\n              class=\"icon\"\n              [auiActive]=\"isIconActive\" ></span>\n        <span class=\"label\"\n              *ngIf=\"hasLabel()\"\n              (click)=\"labelClick()\"\n              [auiActive]=\"isLabelActive\" >{{label}}</span>\n        <input [type]=\"type\"\n               [value]=\"value\"\n               [disabled]=\"isDisabled\"\n               [placeholder]=\"placeholder\"\n               (change)=\"onChange($event)\"\n               (input)=\"onInput($event)\"\n               (focus)=\"inputFocus()\"\n               (blur)=\"inputBlur()\" [readonly]=\"readonly\" #input/>\n        <span class=\"tail\"\n              auiIcon [iconObj]=\"tail\"\n              *ngIf=\"hasTail()\"\n              (click)=\"tailClick()\"\n              [auiActive]=\"isTailActive\" ></span>\n      </div>\n    </div>\n  ",
+                template: "\n    <div class=\"aui-text-input-outlet\"\n         [ngClass]=\"dumpStatus()\"\n         (mouseenter)=\"mouseEnter()\"\n         (mouseleave)=\"mouseLeave()\"\n         [auiActive]=\"wholeActive\">\n      <div class=\"input-block\">\n        <span auiIcon\n              (click)=\"iconClick()\"\n              [iconObj]=\"icon\"\n              *ngIf=\"hasIcon()\"\n              class=\"icon\"\n              [auiActive]=\"iconActive\" ></span>\n        <span class=\"label\"\n              *ngIf=\"hasLabel()\"\n              (click)=\"labelClick()\"\n              [auiActive]=\"labelActive\" >{{label}}</span>\n        <input [type]=\"type\"\n               [value]=\"value\"\n               [disabled]=\"isDisabled\"\n               [placeholder]=\"placeholder\"\n               (change)=\"onChange($event)\"\n               (input)=\"onInput($event)\"\n               (focus)=\"inputFocus()\"\n               (blur)=\"inputBlur()\" [readonly]=\"readonly\" #input/>\n        <span class=\"tail\"\n              auiIcon [iconObj]=\"tail\"\n              *ngIf=\"hasTail()\"\n              (click)=\"tailClick()\"\n              [auiActive]=\"tailActive\" ></span>\n      </div>\n    </div>\n  ",
                 styles: ["\n\n  "]
             },] },
 ];
@@ -368,7 +416,7 @@ var ActiveDirective = (function () {
          */
         set: function (v) {
             if (v) {
-                this._aui_active = defaultActiveOption;
+                this._aui_active = Object.assign({}, defaultActiveOption);
                 if (v.color) {
                     this._aui_active.color = v.color;
                 }
@@ -411,6 +459,7 @@ var ActiveDirective = (function () {
         var /** @type {?} */ width = this._el.nativeElement.offsetWidth;
         var /** @type {?} */ height = this._el.nativeElement.offsetHeight;
         var /** @type {?} */ point = this._renderer.createElement('span');
+        this._point_cache.push(point);
         var /** @type {?} */ startD = Math.ceil(Math.max(width, height) / 4);
         var /** @type {?} */ distD = Math.ceil(Math.sqrt(width * width + height * height));
         var /** @type {?} */ zoom = Math.ceil(distD / startD);
@@ -432,19 +481,29 @@ var ActiveDirective = (function () {
         setTimeout(function () {
             _this._renderer.setStyle(point, 'transform', "scale(" + zoom + ")");
         }, 0);
-        setTimeout(function () {
-            _this._renderer.setStyle(point, 'transition', 'all .2s ease-out');
-            _this._renderer.setStyle(point, 'opacity', "0");
-        }, this._aui_active.speed);
-        setTimeout(function () {
-            _this._renderer.removeChild(_this.activeEl, point);
-        }, this._aui_active.speed + 200);
+    };
+    /**
+     * @return {?}
+     */
+    ActiveDirective.prototype.removePoint = function () {
+        var _this = this;
+        var /** @type {?} */ point = this._point_cache.pop();
+        if (point) {
+            setTimeout(function () {
+                _this._renderer.setStyle(point, 'transition', 'all .2s ease-out');
+                _this._renderer.setStyle(point, 'opacity', "0");
+            }, this._aui_active.speed);
+            setTimeout(function () {
+                _this._renderer.removeChild(_this.activeEl, point);
+            }, this._aui_active.speed + 200);
+        }
     };
     /**
      * @return {?}
      */
     ActiveDirective.prototype.ngAfterViewInit = function () {
         this.appendRange();
+        this._point_cache = [];
     };
     /**
      * @param {?} event
@@ -460,7 +519,9 @@ var ActiveDirective = (function () {
      * @return {?}
      */
     ActiveDirective.prototype.onMouseUp = function (event) {
-        
+        if (this._aui_active && this._aui_active.isActive && event.button === 0) {
+            this.removePoint();
+        }
     };
     return ActiveDirective;
 }());
@@ -482,6 +543,189 @@ ActiveDirective.propDecorators = {
     'onMouseUp': [{ type: HostListener, args: ['mouseup', ['$event'],] },],
 };
 
+var __extends$1 = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var ButtonComponent = (function (_super) {
+    __extends$1(ButtonComponent, _super);
+    function ButtonComponent() {
+        var _this = _super.call(this, ['hover', 'focus']) || this;
+        _this.mouseClick = new EventEmitter();
+        return _this;
+    }
+    Object.defineProperty(ButtonComponent.prototype, "active", {
+        /**
+         * @return {?}
+         */
+        get: function () {
+            if (!this.isDisabled) {
+                return this.isActive;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ButtonComponent.prototype, "disable", {
+        /**
+         * @param {?} v
+         * @return {?}
+         */
+        set: function (v) {
+            this.isDisabled = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * @return {?}
+     */
+    ButtonComponent.prototype.hasIcon = function () {
+        return !!this.iconObj;
+    };
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    ButtonComponent.prototype.doClick = function (event) {
+        if (!this.isDisabled) {
+            this.mouseClick.emit(event);
+        }
+    };
+    /**
+     * @return {?}
+     */
+    ButtonComponent.prototype.onFocus = function () {
+        this.setStatus(['focus']);
+    };
+    /**
+     * @return {?}
+     */
+    ButtonComponent.prototype.onBlur = function () {
+        this.unsetStatus(['focus']);
+    };
+    /**
+     * @return {?}
+     */
+    ButtonComponent.prototype.onEnter = function () {
+        this.setStatus(['hover']);
+    };
+    /**
+     * @return {?}
+     */
+    ButtonComponent.prototype.onLeave = function () {
+        this.unsetStatus(['hover']);
+    };
+    return ButtonComponent;
+}(ComponentWithStatus));
+ButtonComponent.decorators = [
+    { type: Component, args: [{
+                selector: 'aui-button',
+                encapsulation: ViewEncapsulation.None,
+                template: "\n    <button [auiActive]=\"active\" (click)=\"doClick($event)\" [disabled]=\"isDisabled\" class=\"aui-button-outline\"\n            [ngClass]=\"dumpStatus()\" (focus)=\"onFocus()\" (blur)=\"onBlur()\" (mouseenter)=\"onEnter()\" (mouseleave)=\"onLeave()\">\n      <span class=\"icon\" *ngIf=\"hasIcon()\" auiIcon [iconObj]=\"iconObj\"></span>\n      <span class=\"label\" >{{label}}</span>\n    </button>\n  "
+            },] },
+];
+/**
+ * @nocollapse
+ */
+ButtonComponent.ctorParameters = function () { return []; };
+ButtonComponent.propDecorators = {
+    'iconObj': [{ type: Input },],
+    'isActive': [{ type: Input },],
+    'label': [{ type: Input },],
+    'disable': [{ type: Input },],
+    'mouseClick': [{ type: Output },],
+};
+
+var __extends$2 = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var SelectorComponent = (function (_super) {
+    __extends$2(SelectorComponent, _super);
+    function SelectorComponent() {
+        return _super.call(this, ['hover', 'focus', 'drop-down']) || this;
+    }
+    /**
+     * @return {?}
+     */
+    SelectorComponent.prototype.ngOnInit = function () {
+        this.tailIcon = {
+            family: 'common-icon',
+            name: 'eye'
+        };
+    };
+    /**
+     * @return {?}
+     */
+    SelectorComponent.prototype.hasIcon = function () {
+        return !!this.icon;
+    };
+    /**
+     * @return {?}
+     */
+    SelectorComponent.prototype.hasLabel = function () {
+        return !!this.label && this.label.trim().length > 0;
+    };
+    return SelectorComponent;
+}(ComponentWithStatus));
+SelectorComponent.decorators = [
+    { type: Component, args: [{
+                selector: 'aui-selector',
+                encapsulation: ViewEncapsulation.None,
+                template: "\n    <div class=\"aui-selector-outline\">\n      <div class=\"selector-view\">\n        <span class=\"icon\" auiIcon [iconObj]=\"icon\" *ngIf=\"hasIcon()\"></span>\n        <span class=\"label\" *ngIf=\"hasLabel()\">{{label}}</span>\n        <aui-text-input [tail]=\"tailIcon\" [readonly]=\"true\" [placeholder]=\"'---- selector ----'\"\n                        [value]=\"defaultValue\"></aui-text-input>\n      </div>\n      <div class=\"drop-down-view\">\n        <ng-content select=\"aui-option\"></ng-content>\n      </div>\n    </div>\n  "
+            },] },
+];
+/**
+ * @nocollapse
+ */
+SelectorComponent.ctorParameters = function () { return []; };
+SelectorComponent.propDecorators = {
+    'icon': [{ type: Input },],
+    'label': [{ type: Input },],
+};
+
+var __extends$3 = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var OptionComponent = (function (_super) {
+    __extends$3(OptionComponent, _super);
+    function OptionComponent() {
+        return _super.call(this, ['hover', 'focus']) || this;
+    }
+    return OptionComponent;
+}(ComponentWithStatus));
+OptionComponent.decorators = [
+    { type: Component, args: [{
+                selector: 'aui-option',
+                encapsulation: ViewEncapsulation.None,
+                template: "\n    <div class=\"aui-option-outline\">\n      <ng-content></ng-content>\n    </div>\n  "
+            },] },
+];
+/**
+ * @nocollapse
+ */
+OptionComponent.ctorParameters = function () { return []; };
+
 var AuiComponentModule = (function () {
     function AuiComponentModule() {
     }
@@ -495,12 +739,18 @@ AuiComponentModule.decorators = [
                 declarations: [
                     ActiveDirective,
                     IconDirective,
-                    TextInputComponent
+                    TextInputComponent,
+                    ButtonComponent,
+                    SelectorComponent,
+                    OptionComponent
                 ],
                 exports: [
                     ActiveDirective,
                     IconDirective,
-                    TextInputComponent
+                    TextInputComponent,
+                    ButtonComponent,
+                    SelectorComponent,
+                    OptionComponent
                 ]
             },] },
 ];
@@ -564,5 +814,5 @@ var ValidateHelper = (function () {
  * Generated bundle index. Do not edit.
  */
 
-export { AuiComponentModule, IconObj, IconDirective, ActiveDirective, TextInputComponent, ComponentWithStatus, ValidateHelper, defaultActiveOption };
+export { AuiComponentModule, IconObj, IconDirective, ActiveDirective, TextInputComponent, ButtonComponent, SelectorComponent, OptionComponent, ComponentWithStatus, ValidateHelper, defaultActiveOption };
 //# sourceMappingURL=component.es5.js.map

@@ -1,0 +1,5 @@
+<button [auiActive]="active" (click)="doClick($event)" [disabled]="isDisabled" class="aui-button-outline"
+        [ngClass]="dumpStatus()" (focus)="onFocus()" (blur)="onBlur()" (mouseenter)="onEnter()" (mouseleave)="onLeave()">
+  <span class="icon" *ngIf="hasIcon()" auiIcon [iconObj]="iconObj"></span>
+  <span class="label" >{{label}}</span>
+</button>

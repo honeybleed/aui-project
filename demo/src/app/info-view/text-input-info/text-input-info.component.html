@@ -18,7 +18,27 @@
                       (click) = "doClick()"
                       #input></aui-text-input>
     </div>
-    {{value}}
+    <div class="example-item">
+      <aui-button [disable]="true" (mouseClick)="buttonClick()" [label]="'hello world'"
+                  [isActive]="newStyle" [iconObj]="icon"></aui-button>
+    </div>
+    <div class="example-item">
+      <aui-selector>
+        <aui-option>
+          <div >
+            hhhhh
+          </div>
+        </aui-option>
+        <aui-option>
+          <div >
+            sssss
+          </div>
+        </aui-option>
+        <aui-option>
+          <aui-text-input [label]="test" [value]="''"></aui-text-input>
+        </aui-option>
+      </aui-selector>
+    </div>
   </div>
   <div class="usage">
     <aui-lib-info-usage [markdown]="'icon'"></aui-lib-info-usage>

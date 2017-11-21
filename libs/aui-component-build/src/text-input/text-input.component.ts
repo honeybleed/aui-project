@@ -19,9 +19,29 @@ import { ActiveOption } from '../common/active-option';
 })
 export class TextInputComponent extends ComponentWithStatus implements OnInit {
   @Input() isWholeActive: ActiveOption;
+  get wholeActive() {
+    if (!this.isDisabled) {
+      return this.isWholeActive;
+    }
+  }
   @Input() isIconActive: ActiveOption;
+  get iconActive() {
+    if (!this.isDisabled) {
+      return this.isIconActive;
+    }
+  }
   @Input() isLabelActive: ActiveOption;
+  get labelActive() {
+    if (!this.isDisabled) {
+      return this.isLabelActive;
+    }
+  }
   @Input() isTailActive: ActiveOption;
+  get tailActive() {
+    if (!this.isDisabled) {
+      return this.isTailActive;
+    }
+  }
   @Input() value: string;
   @Input() validateHelper: ValidateHelper;
   @Input() placeholder: string;

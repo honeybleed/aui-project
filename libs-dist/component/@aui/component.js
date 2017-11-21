@@ -122,6 +122,38 @@ class TextInputComponent extends ComponentWithStatus {
         this.validated = new EventEmitter();
     }
     /**
+     * @return {?}
+     */
+    get wholeActive() {
+        if (!this.isDisabled) {
+            return this.isWholeActive;
+        }
+    }
+    /**
+     * @return {?}
+     */
+    get iconActive() {
+        if (!this.isDisabled) {
+            return this.isIconActive;
+        }
+    }
+    /**
+     * @return {?}
+     */
+    get labelActive() {
+        if (!this.isDisabled) {
+            return this.isLabelActive;
+        }
+    }
+    /**
+     * @return {?}
+     */
+    get tailActive() {
+        if (!this.isDisabled) {
+            return this.isTailActive;
+        }
+    }
+    /**
      * @param {?} v
      * @return {?}
      */
@@ -287,18 +319,18 @@ TextInputComponent.decorators = [
          [ngClass]="dumpStatus()"
          (mouseenter)="mouseEnter()"
          (mouseleave)="mouseLeave()"
-         [auiActive]="isWholeActive">
+         [auiActive]="wholeActive">
       <div class="input-block">
         <span auiIcon
               (click)="iconClick()"
               [iconObj]="icon"
               *ngIf="hasIcon()"
               class="icon"
-              [auiActive]="isIconActive" ></span>
+              [auiActive]="iconActive" ></span>
         <span class="label"
               *ngIf="hasLabel()"
               (click)="labelClick()"
-              [auiActive]="isLabelActive" >{{label}}</span>
+              [auiActive]="labelActive" >{{label}}</span>
         <input [type]="type"
                [value]="value"
                [disabled]="isDisabled"
@@ -311,7 +343,7 @@ TextInputComponent.decorators = [
               auiIcon [iconObj]="tail"
               *ngIf="hasTail()"
               (click)="tailClick()"
-              [auiActive]="isTailActive" ></span>
+              [auiActive]="tailActive" ></span>
       </div>
     </div>
   `,
@@ -369,7 +401,7 @@ class ActiveDirective {
      */
     set auiActive(v) {
         if (v) {
-            this._aui_active = defaultActiveOption;
+            this._aui_active = Object.assign({}, defaultActiveOption);
             if (v.color) {
                 this._aui_active.color = v.color;
             }
@@ -408,6 +440,7 @@ class ActiveDirective {
         const /** @type {?} */ width = this._el.nativeElement.offsetWidth;
         const /** @type {?} */ height = this._el.nativeElement.offsetHeight;
         const /** @type {?} */ point = this._renderer.createElement('span');
+        this._point_cache.push(point);
         const /** @type {?} */ startD = Math.ceil(Math.max(width, height) / 4);
         const /** @type {?} */ distD = Math.ceil(Math.sqrt(width * width + height * height));
         const /** @type {?} */ zoom = Math.ceil(distD / startD);
@@ -429,19 +462,28 @@ class ActiveDirective {
         setTimeout(() => {
             this._renderer.setStyle(point, 'transform', `scale(${zoom})`);
         }, 0);
-        setTimeout(() => {
-            this._renderer.setStyle(point, 'transition', 'all .2s ease-out');
-            this._renderer.setStyle(point, 'opacity', `0`);
-        }, this._aui_active.speed);
-        setTimeout(() => {
-            this._renderer.removeChild(this.activeEl, point);
-        }, this._aui_active.speed + 200);
+    }
+    /**
+     * @return {?}
+     */
+    removePoint() {
+        const /** @type {?} */ point = this._point_cache.pop();
+        if (point) {
+            setTimeout(() => {
+                this._renderer.setStyle(point, 'transition', 'all .2s ease-out');
+                this._renderer.setStyle(point, 'opacity', `0`);
+            }, this._aui_active.speed);
+            setTimeout(() => {
+                this._renderer.removeChild(this.activeEl, point);
+            }, this._aui_active.speed + 200);
+        }
     }
     /**
      * @return {?}
      */
     ngAfterViewInit() {
         this.appendRange();
+        this._point_cache = [];
     }
     /**
      * @param {?} event
@@ -457,7 +499,9 @@ class ActiveDirective {
      * @return {?}
      */
     onMouseUp(event) {
-        
+        if (this._aui_active && this._aui_active.isActive && event.button === 0) {
+            this.removePoint();
+        }
     }
 }
 ActiveDirective.decorators = [
@@ -478,6 +522,166 @@ ActiveDirective.propDecorators = {
     'onMouseUp': [{ type: HostListener, args: ['mouseup', ['$event'],] },],
 };
 
+class ButtonComponent extends ComponentWithStatus {
+    constructor() {
+        super(['hover', 'focus']);
+        this.mouseClick = new EventEmitter();
+    }
+    /**
+     * @return {?}
+     */
+    get active() {
+        if (!this.isDisabled) {
+            return this.isActive;
+        }
+    }
+    /**
+     * @param {?} v
+     * @return {?}
+     */
+    set disable(v) {
+        this.isDisabled = v;
+    }
+    /**
+     * @return {?}
+     */
+    hasIcon() {
+        return !!this.iconObj;
+    }
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    doClick(event) {
+        if (!this.isDisabled) {
+            this.mouseClick.emit(event);
+        }
+    }
+    /**
+     * @return {?}
+     */
+    onFocus() {
+        this.setStatus(['focus']);
+    }
+    /**
+     * @return {?}
+     */
+    onBlur() {
+        this.unsetStatus(['focus']);
+    }
+    /**
+     * @return {?}
+     */
+    onEnter() {
+        this.setStatus(['hover']);
+    }
+    /**
+     * @return {?}
+     */
+    onLeave() {
+        this.unsetStatus(['hover']);
+    }
+}
+ButtonComponent.decorators = [
+    { type: Component, args: [{
+                selector: 'aui-button',
+                encapsulation: ViewEncapsulation.None,
+                template: `
+    <button [auiActive]="active" (click)="doClick($event)" [disabled]="isDisabled" class="aui-button-outline"
+            [ngClass]="dumpStatus()" (focus)="onFocus()" (blur)="onBlur()" (mouseenter)="onEnter()" (mouseleave)="onLeave()">
+      <span class="icon" *ngIf="hasIcon()" auiIcon [iconObj]="iconObj"></span>
+      <span class="label" >{{label}}</span>
+    </button>
+  `
+            },] },
+];
+/**
+ * @nocollapse
+ */
+ButtonComponent.ctorParameters = () => [];
+ButtonComponent.propDecorators = {
+    'iconObj': [{ type: Input },],
+    'isActive': [{ type: Input },],
+    'label': [{ type: Input },],
+    'disable': [{ type: Input },],
+    'mouseClick': [{ type: Output },],
+};
+
+class SelectorComponent extends ComponentWithStatus {
+    constructor() {
+        super(['hover', 'focus', 'drop-down']);
+    }
+    /**
+     * @return {?}
+     */
+    ngOnInit() {
+        this.tailIcon = {
+            family: 'common-icon',
+            name: 'eye'
+        };
+    }
+    /**
+     * @return {?}
+     */
+    hasIcon() {
+        return !!this.icon;
+    }
+    /**
+     * @return {?}
+     */
+    hasLabel() {
+        return !!this.label && this.label.trim().length > 0;
+    }
+}
+SelectorComponent.decorators = [
+    { type: Component, args: [{
+                selector: 'aui-selector',
+                encapsulation: ViewEncapsulation.None,
+                template: `
+    <div class="aui-selector-outline">
+      <div class="selector-view">
+        <span class="icon" auiIcon [iconObj]="icon" *ngIf="hasIcon()"></span>
+        <span class="label" *ngIf="hasLabel()">{{label}}</span>
+        <aui-text-input [tail]="tailIcon" [readonly]="true" [placeholder]="'---- selector ----'"
+                        [value]="defaultValue"></aui-text-input>
+      </div>
+      <div class="drop-down-view">
+        <ng-content select="aui-option"></ng-content>
+      </div>
+    </div>
+  `
+            },] },
+];
+/**
+ * @nocollapse
+ */
+SelectorComponent.ctorParameters = () => [];
+SelectorComponent.propDecorators = {
+    'icon': [{ type: Input },],
+    'label': [{ type: Input },],
+};
+
+class OptionComponent extends ComponentWithStatus {
+    constructor() {
+        super(['hover', 'focus']);
+    }
+}
+OptionComponent.decorators = [
+    { type: Component, args: [{
+                selector: 'aui-option',
+                encapsulation: ViewEncapsulation.None,
+                template: `
+    <div class="aui-option-outline">
+      <ng-content></ng-content>
+    </div>
+  `
+            },] },
+];
+/**
+ * @nocollapse
+ */
+OptionComponent.ctorParameters = () => [];
+
 class AuiComponentModule {
     constructor() { }
 }
@@ -489,12 +693,18 @@ AuiComponentModule.decorators = [
                 declarations: [
                     ActiveDirective,
                     IconDirective,
-                    TextInputComponent
+                    TextInputComponent,
+                    ButtonComponent,
+                    SelectorComponent,
+                    OptionComponent
                 ],
                 exports: [
                     ActiveDirective,
                     IconDirective,
-                    TextInputComponent
+                    TextInputComponent,
+                    ButtonComponent,
+                    SelectorComponent,
+                    OptionComponent
                 ]
             },] },
 ];
@@ -555,5 +765,5 @@ class ValidateHelper {
  * Generated bundle index. Do not edit.
  */
 
-export { AuiComponentModule, IconObj, IconDirective, ActiveDirective, TextInputComponent, ComponentWithStatus, ValidateHelper, defaultActiveOption };
+export { AuiComponentModule, IconObj, IconDirective, ActiveDirective, TextInputComponent, ButtonComponent, SelectorComponent, OptionComponent, ComponentWithStatus, ValidateHelper, defaultActiveOption };
 //# sourceMappingURL=component.js.map
