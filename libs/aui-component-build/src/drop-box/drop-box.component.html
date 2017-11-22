@@ -1,0 +1,13 @@
+<div class="aui-drop-box-outline" style="display: inline-block; position: relative;">
+  <div class="view-active-range" [auiActive] = "{ isActive: true }">
+    <div class="drop-value-view" style="display: table; table-layout: fixed">
+      <span class="icon" auiIcon [iconObj]="icon" *ngIf="hasIcon()" style="display: table-cell"></span>
+      <span class="label" *ngIf="hasLabel()" style="display: table-cell">{{label}}</span>
+      <span class="trigger" auiIcon [iconObj]="triggerIcon" style="display: table-cell"></span>
+    </div>
+  </div>
+
+  <div class="drop-down-view" style="position: absolute">
+    <ng-content></ng-content>
+  </div>
+</div>

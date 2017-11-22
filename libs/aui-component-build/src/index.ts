@@ -6,6 +6,7 @@ export * from './text-input/text-input.component';
 export * from './button/button.component';
 export * from './selector/selector.component';
 export * from './option/option.component';
+export * from './drop-box/drop-box.component';
 
 export * from './common/component-with-status';
 export * from './common/validate-handler';

@@ -685,7 +685,7 @@ SelectorComponent.decorators = [
     { type: Component, args: [{
                 selector: 'aui-selector',
                 encapsulation: ViewEncapsulation.None,
-                template: "\n    <div class=\"aui-selector-outline\">\n      <div class=\"selector-view\">\n        <span class=\"icon\" auiIcon [iconObj]=\"icon\" *ngIf=\"hasIcon()\"></span>\n        <span class=\"label\" *ngIf=\"hasLabel()\">{{label}}</span>\n        <aui-text-input [tail]=\"tailIcon\" [readonly]=\"true\" [placeholder]=\"'---- selector ----'\"\n                        [value]=\"defaultValue\"></aui-text-input>\n      </div>\n      <div class=\"drop-down-view\">\n        <ng-content select=\"aui-option\"></ng-content>\n      </div>\n    </div>\n  "
+                template: "\n\n  "
             },] },
 ];
 /**
@@ -726,6 +726,79 @@ OptionComponent.decorators = [
  */
 OptionComponent.ctorParameters = function () { return []; };
 
+var __extends$4 = (undefined && undefined.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var DropBoxComponent = (function (_super) {
+    __extends$4(DropBoxComponent, _super);
+    function DropBoxComponent() {
+        return _super.call(this, ['hover', 'focus', 'drop-down']) || this;
+    }
+    Object.defineProperty(DropBoxComponent.prototype, "triggerIcon", {
+        /**
+         * @return {?}
+         */
+        get: function () {
+            if (!!this._triggerIcon) {
+                return this._triggerIcon;
+            }
+            else {
+                return {
+                    family: 'common-icon',
+                    name: 'arrow-down'
+                };
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * @return {?}
+     */
+    DropBoxComponent.prototype.ngOnInit = function () {
+        this.icon = {
+            family: 'common-icon',
+            name: 'eye'
+        };
+    };
+    /**
+     * @return {?}
+     */
+    DropBoxComponent.prototype.hasIcon = function () {
+        return !!this.icon;
+    };
+    /**
+     * @return {?}
+     */
+    DropBoxComponent.prototype.hasLabel = function () {
+        return !!this.label && this.label.trim().length > 0;
+    };
+    return DropBoxComponent;
+}(ComponentWithStatus));
+DropBoxComponent.decorators = [
+    { type: Component, args: [{
+                selector: 'aui-drop-box',
+                template: "\n    <div class=\"aui-drop-box-outline\" style=\"display: inline-block; position: relative;\">\n      <div class=\"view-active-range\" [auiActive] = \"{ isActive: true }\">\n        <div class=\"drop-value-view\" style=\"display: table; table-layout: fixed\">\n          <span class=\"icon\" auiIcon [iconObj]=\"icon\" *ngIf=\"hasIcon()\" style=\"display: table-cell\"></span>\n          <span class=\"label\" *ngIf=\"hasLabel()\" style=\"display: table-cell\">{{label}}</span>\n          <span class=\"trigger\" auiIcon [iconObj]=\"triggerIcon\" style=\"display: table-cell\"></span>\n        </div>\n      </div>\n\n      <div class=\"drop-down-view\" style=\"position: absolute\">\n        <ng-content></ng-content>\n      </div>\n    </div>\n  ",
+                encapsulation: ViewEncapsulation.None
+            },] },
+];
+/**
+ * @nocollapse
+ */
+DropBoxComponent.ctorParameters = function () { return []; };
+DropBoxComponent.propDecorators = {
+    'icon': [{ type: Input },],
+    'label': [{ type: Input },],
+    '_triggerIcon': [{ type: Input },],
+};
+
 var AuiComponentModule = (function () {
     function AuiComponentModule() {
     }
@@ -741,6 +814,7 @@ AuiComponentModule.decorators = [
                     IconDirective,
                     TextInputComponent,
                     ButtonComponent,
+                    DropBoxComponent,
                     SelectorComponent,
                     OptionComponent
                 ],
@@ -749,6 +823,7 @@ AuiComponentModule.decorators = [
                     IconDirective,
                     TextInputComponent,
                     ButtonComponent,
+                    DropBoxComponent,
                     SelectorComponent,
                     OptionComponent
                 ]
@@ -814,5 +889,5 @@ var ValidateHelper = (function () {
  * Generated bundle index. Do not edit.
  */
 
-export { AuiComponentModule, IconObj, IconDirective, ActiveDirective, TextInputComponent, ButtonComponent, SelectorComponent, OptionComponent, ComponentWithStatus, ValidateHelper, defaultActiveOption };
+export { AuiComponentModule, IconObj, IconDirective, ActiveDirective, TextInputComponent, ButtonComponent, SelectorComponent, OptionComponent, DropBoxComponent, ComponentWithStatus, ValidateHelper, defaultActiveOption };
 //# sourceMappingURL=component.es5.js.map

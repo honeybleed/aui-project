@@ -11,7 +11,8 @@ const commonIcons = {
         { name: 'window-close', code: '\ue93b' },
         { name: 'eye', code: '\ue722' },
         { name: 'check', code: '\ue69c' },
-        { name: 'alert-circle-outline', code: '\ue614' }
+        { name: 'alert-circle-outline', code: '\ue614' },
+        { name: 'arrow-down', code: '\ue600' }
     ]
 };
 

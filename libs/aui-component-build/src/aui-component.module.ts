@@ -6,6 +6,7 @@ import { ActiveDirective } from './active/active.directive';
 import { ButtonComponent } from './button/button.component';
 import { SelectorComponent } from './selector/selector.component';
 import { OptionComponent } from './option/option.component';
+import { DropBoxComponent } from './drop-box/drop-box.component';
 
 @NgModule({
   imports: [
@@ -16,6 +17,7 @@ import { OptionComponent } from './option/option.component';
     IconDirective,
     TextInputComponent,
     ButtonComponent,
+    DropBoxComponent,
     SelectorComponent,
     OptionComponent
   ],
@@ -24,6 +26,7 @@ import { OptionComponent } from './option/option.component';
     IconDirective,
     TextInputComponent,
     ButtonComponent,
+    DropBoxComponent,
     SelectorComponent,
     OptionComponent
   ]
