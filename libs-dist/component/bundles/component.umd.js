@@ -738,29 +738,73 @@ var __extends$4 = (undefined && undefined.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var DropDownBoxTriggerTarget = {};
+DropDownBoxTriggerTarget.TriggerOnView = 0;
+DropDownBoxTriggerTarget.TriggerOnTail = 1;
+DropDownBoxTriggerTarget[DropDownBoxTriggerTarget.TriggerOnView] = "TriggerOnView";
+DropDownBoxTriggerTarget[DropDownBoxTriggerTarget.TriggerOnTail] = "TriggerOnTail";
 var DropBoxComponent = (function (_super) {
     __extends$4(DropBoxComponent, _super);
-    function DropBoxComponent() {
-        return _super.call(this, ['hover', 'focus', 'drop-down']) || this;
+    /**
+     * @param {?} _renderer
+     */
+    function DropBoxComponent(_renderer) {
+        var _this = _super.call(this, ['hover', 'focus', 'drop-down']) || this;
+        _this._renderer = _renderer;
+        _this.triggerIcon = {
+            family: 'common-icon',
+            name: 'arrow-down'
+        };
+        _this.boxHeight = -1;
+        _this.dropTrigger = DropDownBoxTriggerTarget.TriggerOnView;
+        _this.triggerEmitted = new core.EventEmitter();
+        _this._triggerType = DropDownBoxTriggerTarget;
+        return _this;
     }
-    Object.defineProperty(DropBoxComponent.prototype, "triggerIcon", {
+    Object.defineProperty(DropBoxComponent.prototype, "disable", {
         /**
+         * @param {?} v
          * @return {?}
          */
-        get: function () {
-            if (!!this._triggerIcon) {
-                return this._triggerIcon;
+        set: function (v) {
+            this.isDisabled = v;
+            if (this.isDisabled) {
+                this._renderer.removeAttribute(this.showView.nativeElement, 'tabIndex');
             }
             else {
-                return {
-                    family: 'common-icon',
-                    name: 'arrow-down'
-                };
+                this._renderer.setAttribute(this.showView.nativeElement, 'tabIndex', '0');
             }
         },
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(DropBoxComponent.prototype, "active", {
+        /**
+         * @return {?}
+         */
+        get: function () {
+            if (!this.isDisabled) {
+                return this.activeOption;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    DropBoxComponent.prototype.onGlobalClick = function (event) {
+        var _this = this;
+        if (this.autoTrigger) {
+            var /** @type {?} */ inRange = event.path.some(function (ele) {
+                return ele === _this.dropDownView.nativeElement;
+            });
+            if (!inRange && this._dropDown) {
+                this.drop_up();
+            }
+        }
+    };
     /**
      * @return {?}
      */
@@ -769,6 +813,10 @@ var DropBoxComponent = (function (_super) {
             family: 'common-icon',
             name: 'eye'
         };
+        if (this.boxHeight < 0) {
+            this.boxHeight = this.dropDownView.nativeElement.offsetHeight;
+        }
+        this.drop_up();
     };
     /**
      * @return {?}
@@ -782,23 +830,100 @@ var DropBoxComponent = (function (_super) {
     DropBoxComponent.prototype.hasLabel = function () {
         return !!this.label && this.label.trim().length > 0;
     };
+    /**
+     * @return {?}
+     */
+    DropBoxComponent.prototype.onEnter = function () {
+        if (!this.isDisabled) {
+            this.setStatus(['hover']);
+        }
+    };
+    /**
+     * @return {?}
+     */
+    DropBoxComponent.prototype.onLeave = function () {
+        if (!this.isDisabled) {
+            this.unsetStatus(['hover']);
+        }
+    };
+    /**
+     * @return {?}
+     */
+    DropBoxComponent.prototype.onFocus = function () {
+        if (!this.isDisabled) {
+            this.setStatus(['focus']);
+        }
+    };
+    /**
+     * @return {?}
+     */
+    DropBoxComponent.prototype.onBlur = function () {
+        if (!this.isDisabled) {
+            this.unsetStatus(['focus']);
+        }
+    };
+    /**
+     * @param {?} tri
+     * @return {?}
+     */
+    DropBoxComponent.prototype.trigger = function (tri) {
+        if (!this.isDisabled) {
+            if (tri === this.dropTrigger) {
+                if (this._dropDown) {
+                    if (!this.autoTrigger) {
+                        this.drop_up();
+                    }
+                }
+                else {
+                    this.drop_down();
+                }
+            }
+        }
+    };
+    /**
+     * @return {?}
+     */
+    DropBoxComponent.prototype.drop_down = function () {
+        this._dropDown = true;
+        this.setStatus(['drop-down']);
+        this._renderer.setStyle(this.dropDownView.nativeElement, 'height', this.boxHeight + 'px');
+    };
+    /**
+     * @return {?}
+     */
+    DropBoxComponent.prototype.drop_up = function () {
+        this._dropDown = false;
+        this.unsetStatus(['drop-down']);
+        this._renderer.setStyle(this.dropDownView.nativeElement, 'height', '0');
+    };
     return DropBoxComponent;
 }(ComponentWithStatus));
 DropBoxComponent.decorators = [
     { type: core.Component, args: [{
                 selector: 'aui-drop-box',
-                template: "\n    <div class=\"aui-drop-box-outline\" style=\"display: inline-block; position: relative;\">\n      <div class=\"view-active-range\" [auiActive] = \"{ isActive: true }\">\n        <div class=\"drop-value-view\" style=\"display: table; table-layout: fixed\">\n          <span class=\"icon\" auiIcon [iconObj]=\"icon\" *ngIf=\"hasIcon()\" style=\"display: table-cell\"></span>\n          <span class=\"label\" *ngIf=\"hasLabel()\" style=\"display: table-cell\">{{label}}</span>\n          <span class=\"trigger\" auiIcon [iconObj]=\"triggerIcon\" style=\"display: table-cell\"></span>\n        </div>\n      </div>\n\n      <div class=\"drop-down-view\" style=\"position: absolute\">\n        <ng-content></ng-content>\n      </div>\n    </div>\n  ",
+                template: "\n    <div class=\"aui-drop-box-outline\" style=\"display: inline-block; position: relative;\" [ngClass]=\"dumpStatus()\">\n      <div class=\"view-active-range\" [auiActive] =\n        \"dropTrigger === _triggerType.TriggerOnView ? active : null\"\n           (click)=\"trigger(_triggerType.TriggerOnView)\"\n           (mouseenter)=\"onEnter()\" (mouseleave)=\"onLeave()\" (focus)=\"onFocus()\" (blur)=\"onBlur()\" #view>\n        <div class=\"drop-value-view\" style=\"display: table; table-layout: fixed\">\n          <span class=\"icon\" auiIcon [iconObj]=\"icon\" *ngIf=\"hasIcon()\" style=\"display: table-cell\"></span>\n          <span class=\"label\" *ngIf=\"hasLabel()\" style=\"display: table-cell\">{{label}}</span>\n          <span class=\"trigger\" auiIcon [iconObj]=\"triggerIcon\" style=\"display: table-cell\"\n                (click)=\"trigger(_triggerType.TriggerOnTail)\" [auiActive] =\n                  \"dropTrigger === _triggerType.TriggerOnTail ? active : null\"></span>\n        </div>\n      </div>\n\n      <div class=\"drop-down-view\" style=\"position: absolute; overflow-y: hidden; background-color: #fff;\" #dropDownView>\n        <ng-content></ng-content>\n      </div>\n    </div>\n  ",
                 encapsulation: core.ViewEncapsulation.None
             },] },
 ];
 /**
  * @nocollapse
  */
-DropBoxComponent.ctorParameters = function () { return []; };
+DropBoxComponent.ctorParameters = function () { return [
+    { type: core.Renderer2, },
+]; };
 DropBoxComponent.propDecorators = {
     'icon': [{ type: core.Input },],
     'label': [{ type: core.Input },],
-    '_triggerIcon': [{ type: core.Input },],
+    'triggerIcon': [{ type: core.Input },],
+    'disable': [{ type: core.Input },],
+    'activeOption': [{ type: core.Input },],
+    'boxHeight': [{ type: core.Input },],
+    'autoTrigger': [{ type: core.Input },],
+    'dropTrigger': [{ type: core.Input },],
+    'dropDownView': [{ type: core.ViewChild, args: ['dropDownView',] },],
+    'showView': [{ type: core.ViewChild, args: ['view',] },],
+    'triggerEmitted': [{ type: core.Output },],
+    'onGlobalClick': [{ type: core.HostListener, args: ['document:mousedown', ['$event'],] },],
 };
 
 var AuiComponentModule = (function () {
@@ -899,6 +1024,7 @@ exports.TextInputComponent = TextInputComponent;
 exports.ButtonComponent = ButtonComponent;
 exports.SelectorComponent = SelectorComponent;
 exports.OptionComponent = OptionComponent;
+exports.DropDownBoxTriggerTarget = DropDownBoxTriggerTarget;
 exports.DropBoxComponent = DropBoxComponent;
 exports.ComponentWithStatus = ComponentWithStatus;
 exports.ValidateHelper = ValidateHelper;

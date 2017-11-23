@@ -672,22 +672,60 @@ OptionComponent.decorators = [
  */
 OptionComponent.ctorParameters = () => [];
 
+let DropDownBoxTriggerTarget = {};
+DropDownBoxTriggerTarget.TriggerOnView = 0;
+DropDownBoxTriggerTarget.TriggerOnTail = 1;
+DropDownBoxTriggerTarget[DropDownBoxTriggerTarget.TriggerOnView] = "TriggerOnView";
+DropDownBoxTriggerTarget[DropDownBoxTriggerTarget.TriggerOnTail] = "TriggerOnTail";
 class DropBoxComponent extends ComponentWithStatus {
-    constructor() {
+    /**
+     * @param {?} _renderer
+     */
+    constructor(_renderer) {
         super(['hover', 'focus', 'drop-down']);
+        this._renderer = _renderer;
+        this.triggerIcon = {
+            family: 'common-icon',
+            name: 'arrow-down'
+        };
+        this.boxHeight = -1;
+        this.dropTrigger = DropDownBoxTriggerTarget.TriggerOnView;
+        this.triggerEmitted = new EventEmitter();
+        this._triggerType = DropDownBoxTriggerTarget;
+    }
+    /**
+     * @param {?} v
+     * @return {?}
+     */
+    set disable(v) {
+        this.isDisabled = v;
+        if (this.isDisabled) {
+            this._renderer.removeAttribute(this.showView.nativeElement, 'tabIndex');
+        }
+        else {
+            this._renderer.setAttribute(this.showView.nativeElement, 'tabIndex', '0');
+        }
     }
     /**
      * @return {?}
      */
-    get triggerIcon() {
-        if (!!this._triggerIcon) {
-            return this._triggerIcon;
+    get active() {
+        if (!this.isDisabled) {
+            return this.activeOption;
         }
-        else {
-            return {
-                family: 'common-icon',
-                name: 'arrow-down'
-            };
+    }
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    onGlobalClick(event) {
+        if (this.autoTrigger) {
+            const /** @type {?} */ inRange = event.path.some((ele) => {
+                return ele === this.dropDownView.nativeElement;
+            });
+            if (!inRange && this._dropDown) {
+                this.drop_up();
+            }
         }
     }
     /**
@@ -698,6 +736,10 @@ class DropBoxComponent extends ComponentWithStatus {
             family: 'common-icon',
             name: 'eye'
         };
+        if (this.boxHeight < 0) {
+            this.boxHeight = this.dropDownView.nativeElement.offsetHeight;
+        }
+        this.drop_up();
     }
     /**
      * @return {?}
@@ -711,21 +753,92 @@ class DropBoxComponent extends ComponentWithStatus {
     hasLabel() {
         return !!this.label && this.label.trim().length > 0;
     }
+    /**
+     * @return {?}
+     */
+    onEnter() {
+        if (!this.isDisabled) {
+            this.setStatus(['hover']);
+        }
+    }
+    /**
+     * @return {?}
+     */
+    onLeave() {
+        if (!this.isDisabled) {
+            this.unsetStatus(['hover']);
+        }
+    }
+    /**
+     * @return {?}
+     */
+    onFocus() {
+        if (!this.isDisabled) {
+            this.setStatus(['focus']);
+        }
+    }
+    /**
+     * @return {?}
+     */
+    onBlur() {
+        if (!this.isDisabled) {
+            this.unsetStatus(['focus']);
+        }
+    }
+    /**
+     * @param {?} tri
+     * @return {?}
+     */
+    trigger(tri) {
+        if (!this.isDisabled) {
+            if (tri === this.dropTrigger) {
+                if (this._dropDown) {
+                    if (!this.autoTrigger) {
+                        this.drop_up();
+                    }
+                }
+                else {
+                    this.drop_down();
+                }
+            }
+        }
+    }
+    /**
+     * @return {?}
+     */
+    drop_down() {
+        this._dropDown = true;
+        this.setStatus(['drop-down']);
+        this._renderer.setStyle(this.dropDownView.nativeElement, 'height', this.boxHeight + 'px');
+    }
+    /**
+     * @return {?}
+     */
+    drop_up() {
+        this._dropDown = false;
+        this.unsetStatus(['drop-down']);
+        this._renderer.setStyle(this.dropDownView.nativeElement, 'height', '0');
+    }
 }
 DropBoxComponent.decorators = [
     { type: Component, args: [{
                 selector: 'aui-drop-box',
                 template: `
-    <div class="aui-drop-box-outline" style="display: inline-block; position: relative;">
-      <div class="view-active-range" [auiActive] = "{ isActive: true }">
+    <div class="aui-drop-box-outline" style="display: inline-block; position: relative;" [ngClass]="dumpStatus()">
+      <div class="view-active-range" [auiActive] =
+        "dropTrigger === _triggerType.TriggerOnView ? active : null"
+           (click)="trigger(_triggerType.TriggerOnView)"
+           (mouseenter)="onEnter()" (mouseleave)="onLeave()" (focus)="onFocus()" (blur)="onBlur()" #view>
         <div class="drop-value-view" style="display: table; table-layout: fixed">
           <span class="icon" auiIcon [iconObj]="icon" *ngIf="hasIcon()" style="display: table-cell"></span>
           <span class="label" *ngIf="hasLabel()" style="display: table-cell">{{label}}</span>
-          <span class="trigger" auiIcon [iconObj]="triggerIcon" style="display: table-cell"></span>
+          <span class="trigger" auiIcon [iconObj]="triggerIcon" style="display: table-cell"
+                (click)="trigger(_triggerType.TriggerOnTail)" [auiActive] =
+                  "dropTrigger === _triggerType.TriggerOnTail ? active : null"></span>
         </div>
       </div>
 
-      <div class="drop-down-view" style="position: absolute">
+      <div class="drop-down-view" style="position: absolute; overflow-y: hidden; background-color: #fff;" #dropDownView>
         <ng-content></ng-content>
       </div>
     </div>
@@ -736,11 +849,22 @@ DropBoxComponent.decorators = [
 /**
  * @nocollapse
  */
-DropBoxComponent.ctorParameters = () => [];
+DropBoxComponent.ctorParameters = () => [
+    { type: Renderer2, },
+];
 DropBoxComponent.propDecorators = {
     'icon': [{ type: Input },],
     'label': [{ type: Input },],
-    '_triggerIcon': [{ type: Input },],
+    'triggerIcon': [{ type: Input },],
+    'disable': [{ type: Input },],
+    'activeOption': [{ type: Input },],
+    'boxHeight': [{ type: Input },],
+    'autoTrigger': [{ type: Input },],
+    'dropTrigger': [{ type: Input },],
+    'dropDownView': [{ type: ViewChild, args: ['dropDownView',] },],
+    'showView': [{ type: ViewChild, args: ['view',] },],
+    'triggerEmitted': [{ type: Output },],
+    'onGlobalClick': [{ type: HostListener, args: ['document:mousedown', ['$event'],] },],
 };
 
 class AuiComponentModule {
@@ -828,5 +952,5 @@ class ValidateHelper {
  * Generated bundle index. Do not edit.
  */
 
-export { AuiComponentModule, IconObj, IconDirective, ActiveDirective, TextInputComponent, ButtonComponent, SelectorComponent, OptionComponent, DropBoxComponent, ComponentWithStatus, ValidateHelper, defaultActiveOption };
+export { AuiComponentModule, IconObj, IconDirective, ActiveDirective, TextInputComponent, ButtonComponent, SelectorComponent, OptionComponent, DropDownBoxTriggerTarget, DropBoxComponent, ComponentWithStatus, ValidateHelper, defaultActiveOption };
 //# sourceMappingURL=component.js.map

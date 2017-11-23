@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { IconObj } from '@aui/component';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
+import { IconObj, DropDownBoxTriggerTarget } from '@aui/component';
 import { TextInputComponent, ValidateRet, ValidateHelper, ActiveOption} from '@aui/component';
 import { HasAValidateHandler, LengValidateHandler } from './test-validate-handers';
 
@@ -15,6 +15,7 @@ export class TextInputInfoComponent implements AfterViewInit, OnInit {
   icon: IconObj;
   tail: IconObj;
   label: string;
+  dropTrigger = DropDownBoxTriggerTarget.TriggerOnTail;
   value = '';
   defaultValue= '';
   vh: ValidateHelper;
@@ -22,7 +23,7 @@ export class TextInputInfoComponent implements AfterViewInit, OnInit {
   newStyle: ActiveOption;
   @ViewChild(TextInputComponent)
   private input: TextInputComponent;
-  constructor() {
+  constructor(private _renderer: Renderer2, private _cdr: ChangeDetectorRef) {
   }
   tailClick() {
     this.input.clearText();
@@ -60,5 +61,20 @@ export class TextInputInfoComponent implements AfterViewInit, OnInit {
       isActive: true,
       color: 'rgba(255,0,0,.2)'
     };
+  }
+  onDropDown(event) {
+    console.dir(event);
+    const ele = event.view.nativeElement;
+    if (event.isDown) {
+      const viewHeight = ele.offsetHeight;
+      this._renderer.setStyle(ele, 'transition', 'all, .4s');
+      this._renderer.setStyle(ele, 'height', '0px');
+      setTimeout(() => {
+        this._renderer.setStyle(ele, 'height', viewHeight + 'px');
+      }, 0);
+    } else {
+      // this._renderer.removeStyle(ele, 'transition');
+      this._renderer.removeStyle(ele, 'height');
+    }
   }
 }

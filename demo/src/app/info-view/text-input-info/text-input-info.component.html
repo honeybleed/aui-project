@@ -23,7 +23,8 @@
                   [isActive]="newStyle" [iconObj]="icon"></aui-button>
     </div>
     <div class="example-item">
-      <aui-drop-box [label]="'drop down box'">
+      <aui-drop-box [label]="'drop down box'" [dropTrigger]="dropTrigger" (triggerEmitted)="onDropDown($event)"
+                    [disable] = "false" [activeOption]="{isActive: true}" [autoTrigger]="true">
         <aui-option>
           <div >
             hhhhh
