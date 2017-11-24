@@ -1,4 +1,4 @@
-import { ElementRef, EventEmitter, OnInit, Renderer2 } from '@angular/core';
+import { ElementRef, OnInit, Renderer2 } from '@angular/core';
 import { ComponentWithStatus } from '../common/component-with-status';
 import { IconObj } from '../icon/icon.directive';
 import { ActiveOption } from '../common/active-option';
@@ -22,10 +22,6 @@ export declare class DropBoxComponent extends ComponentWithStatus implements OnI
     dropTrigger: DropDownBoxTriggerTarget;
     dropDownView: ElementRef;
     showView: ElementRef;
-    triggerEmitted: EventEmitter<{
-        isDown: boolean;
-        view: ElementRef;
-    }>;
     private _dropDown;
     _triggerType: typeof DropDownBoxTriggerTarget;
     constructor(_renderer: Renderer2);
@@ -37,7 +33,7 @@ export declare class DropBoxComponent extends ComponentWithStatus implements OnI
     private onLeave();
     private onFocus();
     private onBlur();
-    private trigger(tri);
-    private drop_down();
-    private drop_up();
+    private trigger(tri, event);
+    drop_down(): void;
+    drop_up(): void;
 }

@@ -96,4 +96,9 @@ export class ActiveDirective implements AfterViewInit {
       this.removePoint();
     }
   }
+  @HostListener('mouseleave', ['$event']) onMouseLeave(event: MouseEvent) {
+    if (this._aui_active && this._aui_active.isActive && event.button === 0) {
+      this.removePoint();
+    }
+  }
 }

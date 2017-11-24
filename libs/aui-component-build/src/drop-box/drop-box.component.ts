@@ -1,5 +1,5 @@
 import {
-  Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, Renderer2, ViewChild,
+  Component, ElementRef, HostListener, Input, OnInit, Output, Renderer2, ViewChild,
   ViewEncapsulation
 } from '@angular/core';
 import { ComponentWithStatus } from '../common/component-with-status';
@@ -15,6 +15,7 @@ export enum DropDownBoxTriggerTarget {
   encapsulation: ViewEncapsulation.None
 })
 export  class DropBoxComponent extends ComponentWithStatus implements OnInit {
+  // @Input fields
   @Input()icon: IconObj;
   @Input()label: string;
   @Input()triggerIcon = {
@@ -39,9 +40,10 @@ export  class DropBoxComponent extends ComponentWithStatus implements OnInit {
   @Input() boxHeight: number = -1;
   @Input() autoTrigger: boolean;
   @Input() dropTrigger: DropDownBoxTriggerTarget = DropDownBoxTriggerTarget.TriggerOnView;
+  // @ViewChild fields
   @ViewChild('dropDownView') dropDownView: ElementRef;
   @ViewChild('view') showView: ElementRef;
-  @Output() triggerEmitted = new EventEmitter<{isDown: boolean; view: ElementRef}>();
+
   private _dropDown: boolean;
   public _triggerType = DropDownBoxTriggerTarget;
   constructor(private _renderer: Renderer2) {
@@ -94,25 +96,24 @@ export  class DropBoxComponent extends ComponentWithStatus implements OnInit {
       this.unsetStatus(['focus']);
     }
   }
-  private trigger(tri: DropDownBoxTriggerTarget) {
+  private trigger(tri: DropDownBoxTriggerTarget, event: MouseEvent) {
+    event.stopPropagation();
     if (!this.isDisabled) {
       if (tri === this.dropTrigger) {
         if (this._dropDown) {
-          if (!this.autoTrigger) {
-            this.drop_up();
-          }
+          this.drop_up();
         } else {
           this.drop_down();
         }
       }
     }
   }
-  private drop_down() {
+  drop_down() {
     this._dropDown = true;
     this.setStatus(['drop-down']);
     this._renderer.setStyle(this.dropDownView.nativeElement, 'height', this.boxHeight + 'px');
   }
-  private drop_up() {
+  drop_up() {
     this._dropDown = false;
     this.unsetStatus(['drop-down']);
     this._renderer.setStyle(this.dropDownView.nativeElement, 'height', '0');

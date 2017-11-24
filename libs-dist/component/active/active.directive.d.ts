@@ -14,4 +14,5 @@ export declare class ActiveDirective implements AfterViewInit {
     ngAfterViewInit(): void;
     onMouseDown(event: MouseEvent): void;
     onMouseUp(event: MouseEvent): void;
+    onMouseLeave(event: MouseEvent): void;
 }

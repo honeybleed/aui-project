@@ -503,6 +503,15 @@ class ActiveDirective {
             this.removePoint();
         }
     }
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    onMouseLeave(event) {
+        if (this._aui_active && this._aui_active.isActive && event.button === 0) {
+            this.removePoint();
+        }
+    }
 }
 ActiveDirective.decorators = [
     { type: Directive, args: [{
@@ -520,6 +529,7 @@ ActiveDirective.propDecorators = {
     'auiActive': [{ type: Input },],
     'onMouseDown': [{ type: HostListener, args: ['mousedown', ['$event'],] },],
     'onMouseUp': [{ type: HostListener, args: ['mouseup', ['$event'],] },],
+    'onMouseLeave': [{ type: HostListener, args: ['mouseleave', ['$event'],] },],
 };
 
 class ButtonComponent extends ComponentWithStatus {
@@ -690,7 +700,6 @@ class DropBoxComponent extends ComponentWithStatus {
         };
         this.boxHeight = -1;
         this.dropTrigger = DropDownBoxTriggerTarget.TriggerOnView;
-        this.triggerEmitted = new EventEmitter();
         this._triggerType = DropDownBoxTriggerTarget;
     }
     /**
@@ -787,15 +796,15 @@ class DropBoxComponent extends ComponentWithStatus {
     }
     /**
      * @param {?} tri
+     * @param {?} event
      * @return {?}
      */
-    trigger(tri) {
+    trigger(tri, event) {
+        event.stopPropagation();
         if (!this.isDisabled) {
             if (tri === this.dropTrigger) {
                 if (this._dropDown) {
-                    if (!this.autoTrigger) {
-                        this.drop_up();
-                    }
+                    this.drop_up();
                 }
                 else {
                     this.drop_down();
@@ -827,13 +836,13 @@ DropBoxComponent.decorators = [
     <div class="aui-drop-box-outline" style="display: inline-block; position: relative;" [ngClass]="dumpStatus()">
       <div class="view-active-range" [auiActive] =
         "dropTrigger === _triggerType.TriggerOnView ? active : null"
-           (click)="trigger(_triggerType.TriggerOnView)"
+           (mousedown)="trigger(_triggerType.TriggerOnView, $event)"
            (mouseenter)="onEnter()" (mouseleave)="onLeave()" (focus)="onFocus()" (blur)="onBlur()" #view>
         <div class="drop-value-view" style="display: table; table-layout: fixed">
           <span class="icon" auiIcon [iconObj]="icon" *ngIf="hasIcon()" style="display: table-cell"></span>
           <span class="label" *ngIf="hasLabel()" style="display: table-cell">{{label}}</span>
           <span class="trigger" auiIcon [iconObj]="triggerIcon" style="display: table-cell"
-                (click)="trigger(_triggerType.TriggerOnTail)" [auiActive] =
+                (mousedown)="trigger(_triggerType.TriggerOnTail, $event)" [auiActive] =
                   "dropTrigger === _triggerType.TriggerOnTail ? active : null"></span>
         </div>
       </div>
@@ -863,7 +872,6 @@ DropBoxComponent.propDecorators = {
     'dropTrigger': [{ type: Input },],
     'dropDownView': [{ type: ViewChild, args: ['dropDownView',] },],
     'showView': [{ type: ViewChild, args: ['view',] },],
-    'triggerEmitted': [{ type: Output },],
     'onGlobalClick': [{ type: HostListener, args: ['document:mousedown', ['$event'],] },],
 };
 
